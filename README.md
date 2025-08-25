@@ -22,7 +22,7 @@ Puertos:
 Este paquete contiene código de ejemplo — adáptalo a tus tablas y políticas RLS de Supabase.
 
 
-# Backend + Frontend con Supabase
+# SYKER Demo - Backend + Frontend con Supabase
 
 Este proyecto incluye un backend en Node.js/Express y un frontend estático que consumen datos desde Supabase.
 
