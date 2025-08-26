@@ -2,25 +2,25 @@
 import db from '../config/db.js';
 
 /**
- * GET /languages
+ * GET /courses
  */
-export const getLanguages = async (req, res) => {
+export const getCourse = async (req, res) => {
   try {
-    const { data, error } = await db.from('languages').select('*').order('name', { ascending: true });
+    const { data, error } = await db.from('courses').select('*').order('name', { ascending: true });
     if (error) throw error;
     res.status(200).json(data);
   } catch (error) {
-    console.error('getLanguages error', error);
-    res.status(500).json({ error: 'Error al obtener los lenguajes' });
+    console.error('getCourse error', error);
+    res.status(500).json({ error: 'Error al obtener los Courses' });
   }
 };
 
 /**
- * GET /languages/:id/levels?userId=...
- * Devuelve los niveles del lenguaje con flags: finished, isUnlocked
+ * GET /courses/:id/levels?userId=...
+ * Devuelve los niveles del course con flags: finished, isUnlocked
  */
-export const getLevelsByLanguage = async (req, res) => {
-  const { id_language } = req.params;
+export const getLevelsByCourse = async (req, res) => {
+  const { id_courses } = req.params;
   // userId: se puede pasar por query o por header (cuando tengas auth real usar token)
   const userId = req.query.userId || req.header('x-user-id') || null;
 
@@ -29,11 +29,11 @@ export const getLevelsByLanguage = async (req, res) => {
     const { data: levels, error: levelsError } = await db
       .from('level')
       .select('id_level, name, description, step')
-      .eq('id_language', id_language)
+      .eq('id_courses', id_courses)
       .order('step', { ascending: true });
     if (levelsError) throw levelsError;
 
-    if (!levels.length) return res.status(200).json({ languageId: +id_language, levels: [] });
+    if (!levels.length) return res.status(200).json({ coursesId: +id_courses, levels: [] });
 
     // 2) Traer progreso del usuario para esos niveles (si no hay userId, progressRows = [])
     let progressRows = [];
@@ -69,9 +69,9 @@ export const getLevelsByLanguage = async (req, res) => {
       };
     });
 
-    res.status(200).json({ languageId: +id_language, levels: levelsWithFlags, userId: userId || null });
+    res.status(200).json({ coursesId: +id_courses, levels: levelsWithFlags, userId: userId || null });
   } catch (error) {
-    console.error('getLevelsByLanguage error', error);
+    console.error('getLevelsByCourse error', error);
     res.status(500).json({ error: 'Error al obtener los niveles' });
   }
 };

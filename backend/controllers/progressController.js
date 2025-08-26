@@ -50,11 +50,11 @@ export const finishLevel = async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Confirmar nivel y lenguaje
-    const lvlRes = await client.query('SELECT id_language, step FROM level WHERE id_level = $1', [id_level]);
+    // Confirmar nivel y courses
+    const lvlRes = await client.query('SELECT id_courses, step FROM level WHERE id_level = $1', [id_level]);
     if (lvlRes.rowCount === 0) throw new Error('Nivel no encontrado');
 
-    const { id_language, step } = lvlRes.rows[0];
+    const { id_courses, step } = lvlRes.rows[0];
 
     // Upsert progress -> marcar completado (status=2)
     // (Si no tienes UNIQUE(id_user,id_level) en progress, esta sentencia fallará;
@@ -72,24 +72,24 @@ export const finishLevel = async (req, res) => {
       );
     }
 
-    // Actualizar users_languages (registro del nivel alcanzado)
+    // Actualizar users_courses (registro del nivel alcanzado)
     await client.query(
-      `INSERT INTO users_languages (id_user, id_language, level)
+      `INSERT INTO users_courses (id_user, id_courses, level)
        VALUES ($1, $2, $3)
-       ON CONFLICT (id_user, id_language) DO UPDATE SET level = EXCLUDED.level`,
-      [id_user, id_language, step]
+       ON CONFLICT (id_user, id_courses) DO UPDATE SET level = EXCLUDED.level`,
+      [id_user, id_courses, step]
     );
 
     await client.query('COMMIT');
 
-    // calcular porcentaje completado en ese lenguaje
-    const totalRes = await db.query('SELECT COUNT(*)::int as total FROM level WHERE id_language = $1', [id_language]);
+    // calcular porcentaje completado en ese courses
+    const totalRes = await db.query('SELECT COUNT(*)::int as total FROM level WHERE id_courses = $1', [id_courses]);
     const doneRes = await db.query(
       `SELECT COUNT(DISTINCT p.id_level)::int as completed
        FROM progress p
        JOIN level l ON p.id_level = l.id_level
-       WHERE p.id_user = $1 AND l.id_language = $2 AND p.status = 2`,
-      [id_user, id_language]
+       WHERE p.id_user = $1 AND l.id_courses = $2 AND p.status = 2`,
+      [id_user, id_courses]
     );
 
     const total = totalRes.rows[0].total || 0;
@@ -107,26 +107,26 @@ export const finishLevel = async (req, res) => {
 };
 
 
-// GET /progress/:id_user/:id_language  -> estado general
-export const getProgressByUserLanguage = async (req, res) => {
-  const { id_user, id_language } = req.params;
+// GET /progress/:id_user/:id_courses  -> estado general
+export const getProgressByUserCourse = async (req, res) => {
+  const { id_user, id_courses } = req.params;
   try {
-    const totalRes = await db.query('SELECT COUNT(*)::int as total FROM level WHERE id_language = $1', [id_language]);
+    const totalRes = await db.query('SELECT COUNT(*)::int as total FROM level WHERE id_courses = $1', [id_courses]);
     const doneRes = await db.query(
       `SELECT COUNT(DISTINCT p.id_level)::int as completed
        FROM progress p
        JOIN level l ON p.id_level = l.id_level
-       WHERE p.id_user = $1 AND l.id_language = $2 AND p.status = 2`,
-      [id_user, id_language]
+       WHERE p.id_user = $1 AND l.id_courses = $2 AND p.status = 2`,
+      [id_user, id_courses]
     );
 
     const total = totalRes.rows[0].total || 0;
     const completed = doneRes.rows[0].completed || 0;
     const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
 
-    res.status(200).json({ id_user, id_language, total, completed, percentage: percent });
+    res.status(200).json({ id_user, id_courses, total, completed, percentage: percent });
   } catch (error) {
-    console.error('getProgressByUserLanguage', error);
+    console.error('getProgressByUserCourse', error);
     res.status(500).json({ error: 'Error al obtener progreso' });
   }
 };
