@@ -35,7 +35,10 @@ Do/
 │   ├── index.js
 │   ├── package.json
 │   ├── config/
-│   │   └── db.js
+│   │   ├── db.js
+│   │   ├── jwt.js
+│   ├── middlewares/
+│   │   └── authMiddleware
 │   ├── controllers/
 │   │   └── authControllers.js
 │   └── routes/
