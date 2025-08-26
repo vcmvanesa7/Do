@@ -1,4 +1,6 @@
 import express from 'express';
+import { getLanguages, getLevelsByLanguage } from '../controllers/authlevels.js';
+
 
 const router = express.Router();
 
@@ -8,6 +10,8 @@ const router = express.Router();
  */
 router.get('/', (req, res) => {
     res.status(200).json({ message: 'Todo OK en Levels'})
-})
+});
 
+router.get('/languages', getLanguages);
+router.get('/languages/:id_language/levels', getLevelsByLanguage);
 export const levelsRouter = router;

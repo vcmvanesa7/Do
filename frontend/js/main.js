@@ -1,43 +1,27 @@
-// Ejemplo simple de consumo de los backends
-async function fetchLevels() {
-  try {
-    const res = await fetch("http://localhost:3002/levels")
-    const data = await res.json()
-    const ul = document.getElementById("levelsList")
-    ul.innerHTML = ""
-    data.forEach(l => {
-      const li = document.createElement("li")
-      li.className = "list-group-item d-flex justify-content-between align-items-center"
-      li.textContent = `${l.name || l.nombre} (step: ${l.step || l.nivel_orden || l.level || ''})`
-      const btn = document.createElement("button")
-      btn.className = "btn btn-sm btn-primary"
-      btn.textContent = "Ver ejercicios"
-      btn.onclick = () => fetchExercises(l.id_level || l.id_level || l.step || l.id)
-      li.appendChild(btn)
-      ul.appendChild(li)
-    })
-  } catch (err) {
-    console.error(err)
-  }
+// Mostrar lenguajes 
+async function fetchLanguages() {
+  const res = await fetch('http://localhost:3001/levels/languages');
+  const languages = await res.json();
+  const container = document.getElementById('languages-container');
+  container.innerHTML = languages.map(lang => `
+    <button onclick="fetchLevels(${lang.id_language}, '${lang.name}')">${lang.name}</button>
+  `).join('');
 }
 
-async function fetchExercises(levelId) {
-  try {
-    const res = await fetch(`http://localhost:3003/exercises/${levelId}`)
-    const data = await res.json()
-    const ul = document.getElementById("exList")
-    ul.innerHTML = ""
-    data.forEach(e => {
-      const li = document.createElement("li")
-      li.className = "list-group-item"
-      li.textContent = e.name || e.titulo || e.title
-      ul.appendChild(li)
-    })
-  } catch (err) {
-    console.error(err)
-  }
+// Mostrar niveles de un lenguaje
+async function fetchLevels(id_language, langName) {
+  const res = await fetch(`http://localhost:3001/levels/languages/${id_language}/levels`);
+  const result = await res.json();
+  // Si tu endpoint devuelve { levels: [...] }
+  const levels = result.levels || [];
+  const container = document.getElementById('levels-container');
+  container.innerHTML = `<h2>Niveles de ${langName}</h2>` + levels.map(lvl => `
+    <div>
+      <h4>${lvl.name}</h4>
+      <p>${lvl.description}</p>
+      <span>Paso: ${lvl.step}</span>
+    </div>
+  `).join('');
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  fetchLevels()
-})
+document.addEventListener('DOMContentLoaded', fetchLanguages);
