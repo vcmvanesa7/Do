@@ -1,0 +1,126 @@
+/*RESET BÁSICO*/
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/*ESTILOS GENERALES
+_______________________
+_______________________*/
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #f4f6f8; /* gris muy suave */
+  color: #333;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+}
+
+/* Contenedor principal*/
+section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Títulos */
+h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+/* Inputs y formularios */
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 4px rgba(76, 175, 80, 0.4);
+}
+
+/* BOTONES (para <a> y <button>)
+________________________________*/
+
+.btn,
+button {
+  display: inline-block;
+  width: 100%;
+  padding: 12px 20px;
+  background-color: #4CAF50; /* verde */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.btn:hover,
+button:hover {
+  background-color: #45a049;
+}
+
+.btn:active,
+button:active {
+  transform: scale(0.98);
+}
+
+/* Texto extra */
+p {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #4CAF50; /* Verde bonito */
+  color: white;
+  border-radius: 5px;
+  text-decoration: none; /* quita subrayado */
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #45a049;
+}
+
+/*FIN ESTILOS GENERALES
+______________________________________________________________________________________________*/
+
+
+.cursos {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.curso {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+  background-color: #fafafa;
+}
