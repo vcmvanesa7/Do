@@ -1,5 +1,6 @@
 import express from 'express';
-import { Register } from '../controllers/authControllers.js';
+import { Register,Login } from '../controllers/authControllers.js';
+import { authMiddleware } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -12,5 +13,13 @@ router.get('/', (req, res) => {
 })
 
 router.post('/register', Register);
+router.post('/login',Login);
+
+//ruta protegida
+
+router.get("/me",authMiddleware, (req,res) => {
+    res.json({message:"User data", user: req.user});
+});
+
 
 export const authRouter = router;

@@ -1,6 +1,7 @@
 import express from "express";
 import { authRouter, levelsRouter, exercisesRouter } from "./routes/index.js";
 
+require('dotenv').config();
 
 const app = express()
 app.use(express.json())
