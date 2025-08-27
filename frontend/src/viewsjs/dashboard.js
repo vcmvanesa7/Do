@@ -3,44 +3,32 @@
 // Exporta una función que retorna el HTML de la vista del dashboard
 // Contiene enlaces a cursos disponibles    
 
-import { navigate } from "../router.js";
-
+// src/views/dashboard.js
 export function DashboardView() {
   const section = document.createElement("section");
 
-  // Simulamos algunos cursos
+  // Cursos simulados
   const cursos = [
-    { id: 1, nombre: "Curso de JavaScript" },
-    { id: 2, nombre: "Curso de HTML y CSS" },
-    { id: 3, nombre: "Curso de Python" },
+    { id: 1, nombre: "Curso de HTML", progreso: 60 },
+    { id: 2, nombre: "Curso de CSS", progreso: 30 },
+    { id: 3, nombre: "Curso de JavaScript", progreso: 10 },
   ];
 
-  // Generar HTML de la lista de cursos
-  const cursosHTML = cursos
-    .map(
-      (curso) => `
-      <div class="curso">
-        <h3>${curso.nombre}</h3>
-        <button class="btn" data-id="${curso.id}">Ver Curso</button>
-      </div>
-    `
-    )
-    .join("");
-
   section.innerHTML = `
-    <h1>Dashboard</h1>
-    <p>Lista de cursos disponibles:</p>
-    <div class="cursos">${cursosHTML}</div>
+    <h1>🎮 Bienvenido a tu Aventura</h1>
+    <p>Selecciona un curso para continuar tu misión:</p>
+    <div class="cursos-grid">
+      ${cursos.map(c => `
+        <div class="curso-card">
+          <h2>${c.nombre}</h2>
+          <div class="progress-bar">
+            <div class="progress" style="width:${c.progreso}%"></div>
+          </div>
+          <a data-link href="/course/${c.id}" class="btn">Entrar</a>
+        </div>
+      `).join("")}
+    </div>
   `;
-
-  // Lógica de los botones para cada curso
-  const botones = section.querySelectorAll(".curso button");
-  botones.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-id");
-      navigate(`/course/${id}`); // Redirige a Course/:id
-    });
-  });
 
   return section;
 }
