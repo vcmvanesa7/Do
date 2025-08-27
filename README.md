@@ -35,7 +35,10 @@ Do/
 │   ├── index.js
 │   ├── package.json
 │   ├── config/
-│   │   └── db.js
+│   │   ├── db.js
+│   │   ├── jwt.js
+│   ├── middlewares/
+│   │   └── authMiddleware
 │   ├── controllers/
 │   │   └── authControllers.js
 │   └── routes/
@@ -105,3 +108,107 @@ El frontend consume los endpoints de niveles y ejercicios desde [`main.js`](fron
 ---
 
 Este proyecto es una base para conectar un backend Express con Supabase y un frontend simple.
+
+
+
+
+
+# 📘 Frontend SPA 
+
+Este proyecto es un **SPA (Single Page Application)** construido con **Vite + Vanilla JS**.  
+
+## 🚀 Requisitos previos  
+Antes de comenzar asegúrate de tener instalado en tu PC:  
+
+- [Node.js](https://nodejs.org/) (v18 o superior recomendado)  
+- npm (se instala junto con Node.js)  
+
+Verifica las versiones instaladas:  
+```bash
+node -v
+npm -v
+```
+
+---
+
+## 📂 Instalación  
+
+1. **Clonar el repositorio**  
+   ```bash
+   git clone https://github.com/vcmvanesa7/Do.git
+   cd Do/frontend
+   ```
+
+2. **Instalar dependencias**  
+   ```bash
+   npm install
+   ```
+
+---
+
+## ▶️ Ejecutar en modo desarrollo  
+
+```bash
+npm run dev
+```
+
+Esto iniciará un servidor de desarrollo con **Vite**.  
+La terminal mostrará una URL parecida a:  
+```
+  ➜  Local:   http://localhost:5173/
+```
+
+Abre esa dirección en tu navegador para ver la app en acción.  
+
+---
+
+## 🏗️ Build de producción  
+
+Para generar la versión optimizada para producción:  
+
+```bash
+npm run build
+```
+
+Esto creará una carpeta `/dist` lista para desplegar en un hosting.  
+
+Si quieres **probar localmente el build**:  
+```bash
+npm run preview
+```
+
+---
+
+## 📁 Estructura del proyecto  
+
+```
+frontend/
+├── assets/                # Recursos estáticos (imágenes, íconos, etc.)
+├── node_modules/          # Dependencias instaladas por npm
+├── public/                # Archivos públicos accesibles directamente (favicons, etc.)
+├── src/                   # Código fuente principal del frontend
+│   ├── viewsjs/           # Vistas principales de la app
+│   │   ├── course.js      # Vista curso individual
+│   │   ├── dashboard.js   # Vista principal con todos los cursos
+│   │   ├── level.js       # Vista de niveles (teoría + ejercicios)
+│   │   ├── login.js       # Vista de login
+│   │   ├── profile.js     # Vista de perfil de usuario
+│   │   ├── public.js      # Vista pública (landing inicial)
+│   │   └── register.js    # Vista de registro
+│   ├── main.js            # Punto de entrada de la aplicación
+│   └── router.js          # Manejo de rutas entre vistas
+├── index.html             # HTML principal
+├── package.json           # Dependencias y scripts del proyecto
+├── package-lock.json      # Bloqueo de versiones de dependencias
+└── README.md              # Documentación del proyecto
+
+```
+
+---
+
+## 🔑 Notas importantes  
+
+- Todo el código de la app está en `src/`.  
+- Los estilos globales se encuentran en `src/assets/css/styles.css`.  
+- Las vistas de la app se encuentran en `src/views/`.  
+- El enrutador `router.js` se encarga de cargar dinámicamente cada vista en el SPA.  

@@ -1,0 +1,26 @@
+{
+  "name": "do",
+  "version": "1.0.0",
+  "description": "Estructura de carpetas preparada para un ejemplo simple con 3 backends (login, niveles, ejercicios) y un frontend estático.",
+  "main": "botonesLogica.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vcmvanesa7/Do.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vcmvanesa7/Do/issues"
+  },
+  "homepage": "https://github.com/vcmvanesa7/Do#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.56.0",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.1",
+    "express-validator": "^7.2.1"
+  }
+}
