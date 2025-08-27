@@ -1,12 +1,30 @@
 import { verifyToken } from "../config/jwt.js";
+import supabase from "../config/db.js";
 
-export const authMiddleware = (req, res ,next) =>{
+export const authMiddleware = async (req, res, next) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    if (!authHeader) return res.status(401).json({ error: "Token requerido" });
 
-    const token = req.headers["authorization"]?.split(" ")[1];
-    if (!token) return res.stattus(401).json({error: "Token required"});
+    const token = authHeader.split(" ")[1];
+    if (!token) return res.status(401).json({ error: "Formato de token inválido" });
 
     const decoded = verifyToken(token);
-    if (!decoded) return res.status(401).json({error: "Invalid or expired token"});
+    if (!decoded || !decoded.id) {
+      return res.status(401).json({ error: "Token inválido o expirado" });
+    }
 
-    req.user = decoded; // usuario disponible en las rutas
-}
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id_user", decoded.id)
+      .single();
+
+    if (error || !user) return res.status(401).json({ error: "Usuario no encontrado" });
+
+    req.user = user;
+    next();
+  } catch (err) {
+    res.status(401).json({ error: "Token inválido o expirado", details: err.message });
+  }
+};

@@ -1,32 +1,74 @@
+import { validationResult } from "express-validator";
+import bcrypt from "bcryptjs";
 import supabase from "../config/db.js";
 import { generateToken } from "../config/jwt.js";
 
-
-// Registration logic
+// REGISTER
 export const Register = async (req, res) => {
-  const { email, password } = req.body; 
-    if (!email || !password) {
-        return res.status(400).json({ error: "Email and password are required" });
-    }   
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) return res.status(400).json({ error: error.message });
-    res.status(201).json({ message: "User created successfully", user: data.user });
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const { nombre, email, password } = req.body;
+
+    const { data: existingUser, error: findError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    if (findError && findError.code !== "PGRST116") return res.status(500).json({ error: findError.message });
+    if (existingUser) return res.status(400).json({ error: "El email ya está registrado" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const { data, error: insertError } = await supabase
+      .from("users")
+      .insert([{ name: nombre, email, pass: hashedPassword }])
+      .select()
+      .single();
+
+    if (insertError) return res.status(500).json({ error: insertError.message });
+
+    const token = generateToken(data);
+
+    res.status(201).json({
+      message: "Usuario registrado con éxito",
+      user: { id: data.id_user, nombre: data.name, email: data.email },
+      token,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-// Login logic
+// LOGIN
 export const Login = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
+    const { email, password } = req.body;
+
+    const { data: user, error: findError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    if (findError) return res.status(400).json({ error: "Usuario no encontrado" });
+
+    const isMatch = await bcrypt.compare(password, user.pass);
+    if (!isMatch) return res.status(400).json({ error: "Credenciales inválidas" });
+
+    const token = generateToken(user);
+
+    res.json({
+      message: "Login exitoso",
+      user: { id: user.id_user, nombre: user.name, email: user.email },
+      token,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-  if (error) return res.status(400).json({ error: error.message });
-
-  // Generar JWT propio
-  const token = generateToken({ id: data.user.id, email: data.user.email });
-
-  res.json({ message: "Successful login", token });
 };

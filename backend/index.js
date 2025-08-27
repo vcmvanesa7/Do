@@ -1,19 +1,22 @@
 import express from "express";
 import cors from "cors";
-import { authRouter, levelsRouter, exercisesRouter } from "./routes/index.js";
+import dotenv from "dotenv";
+import { authRouter, levelsRouter, exercisesRouter } from "./routes/index.js"; // Solo importamos
 
-require('dotenv').config();
+dotenv.config();
 
-const app = express()
+const app = express();
+
 app.use(cors());
-app.use(express.json())
+app.use(express.json());
 
-app.use('/auth', authRouter); // Camila
-app.use('/levels', levelsRouter); // Juanito
-app.use('/exercises', exercisesRouter); // alejo
+// Montar routers
+app.use('/auth', authRouter);
+app.use('/levels', levelsRouter);
+app.use('/exercises', exercisesRouter);
 
-// servidor en el que corre el backend
-const PORT = process.env.PORT || 3001;
+// Servidor
+const PORT = Number(process.env.PORT) || 3001;
 app.listen(PORT, () => {
   console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
 });
