@@ -5,8 +5,6 @@
 // Contiene un botón para navegar a la vista de registro 
 
 
-import{ navigate } from "../router.js";
-
 export function PublicView() {
   const section = document.createElement("section");
 

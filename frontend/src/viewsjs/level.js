@@ -1,48 +1,48 @@
 // src/viewsjs/level.js
-// #6 Vista del nivel       
+import { navigate } from "../router.js";
 
-// Exportamos la función LevelView que recibe los parámetros de la ruta
 export function LevelView(params) {
-  // Creamos un elemento <section> que contendrá todo el contenido de la vista
   const section = document.createElement("section");
+  section.innerHTML = `<p>Cargando nivel...</p>`; // estado inicial
 
-  // Obtenemos el id del nivel desde los parámetros de la ruta
   const nivelId = params.id;
 
-  // Creamos un objeto con la teoría de cada nivel (simulada)
-  const teorias = {
-    1: "Teoría Nivel 1: Introducción a los conceptos básicos.",
-    2: "Teoría Nivel 2: Conceptos intermedios y prácticas.",
-    3: "Teoría Nivel 3: Avanzado, integración y casos prácticos."
-  };
+  async function fetchLevelData() {
+    try {
+      // 👇 ajusta la URL según tu backend
+      const res = await fetch(`http://localhost:4000/levels/${nivelId}`);
+      if (!res.ok) throw new Error("Error en la respuesta del servidor");
 
-  // Creamos un objeto con los ejercicios de cada nivel (simulados)
-  const ejercicios = {
-    1: ["Ejercicio 1.1", "Ejercicio 1.2"],
-    2: ["Ejercicio 2.1", "Ejercicio 2.2"],
-    3: ["Ejercicio 3.1", "Ejercicio 3.2"]
-  };
+      const data = await res.json();
+      // data podría ser algo como:
+      // { id_level: 1, name: "Nivel 1", theory: "...", exercises: ["Ej 1", "Ej 2"] }
 
-  // Generamos el HTML de la lista de ejercicios para este nivel
-  // Si no existen ejercicios para el nivel, devuelve un array vacío
-  const ejerciciosHTML = (ejercicios[nivelId] || []).map(e => `<li>${e}</li>`).join("");
+      renderLevel(data);
+    } catch (err) {
+      console.error("Error al cargar el nivel:", err);
+      section.innerHTML = `<p>Error al cargar nivel. Intenta más tarde.</p>`;
+    }
+  }
 
-  // Insertamos el contenido HTML en la sección
-  // ⚠️ Usamos <a data-link href=""> en lugar de <button> para que SPA maneje la navegación
-  section.innerHTML = `
-    <h1>Nivel ${nivelId}</h1>
-    <h3>Teoría</h3>
-    <p>${teorias[nivelId] || "Contenido no disponible"}</p>
-    <h3>Ejercicios</h3>
-    <ul>${ejerciciosHTML}</ul>
+  function renderLevel(data) {
+    const ejerciciosHTML = (data.exercises || [])
+      .map((e) => `<li>${e}</li>`)
+      .join("");
 
-    <!-- Botón que vuelve al curso, manejado automáticamente por setupNavigation() -->
-    <a data-link href="/course/${nivelId}" class="btn">Volver al Curso</a>
+    section.innerHTML = `
+      <h1>${data.name || "Nivel " + nivelId}</h1>
+      <h3>Teoría</h3>
+      <p>${data.theory || "Contenido no disponible"}</p>
+      <h3>Ejercicios</h3>
+      <ul>${ejerciciosHTML}</ul>
 
-    <!-- Botón que vuelve al dashboard, manejado automáticamente por setupNavigation() -->
-    <a data-link href="/dashboard" class="btn">Volver al Dashboard</a>
-  `;
+      <a data-link href="/course/${data.courseId}" class="btn">Volver al Curso</a>
+      <a data-link href="/dashboard" class="btn">Volver al Dashboard</a>
+    `;
+  }
 
-  // Devolvemos la sección para que router.js la agregue al DOM
+  // cargar del back
+  fetchLevelData();
+
   return section;
 }
