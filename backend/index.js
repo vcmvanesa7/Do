@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { authRouter, levelsRouter, exercisesRouter } from "./routes/index.js"; // Solo importamos
+import { authRouter, levelsRouter, exercisesRouter, coursesRouter } from "./routes/index.js";
 
 dotenv.config();
 
@@ -10,10 +10,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Montar routers
+// Rutas principales
 app.use('/auth', authRouter);
 app.use('/levels', levelsRouter);
 app.use('/exercises', exercisesRouter);
+app.use('/courses', coursesRouter);
 
 // Servidor
 const PORT = Number(process.env.PORT) || 3001;
