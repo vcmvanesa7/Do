@@ -1,26 +1,37 @@
 // src/main.js
+import { Navbar } from "./components/navbar.js";
 import { navigate, renderRoute } from "./router.js";
 
-
-function setupNavigation() {  //Captura los clicks en <a data-link> para que no hagan reload, sino que llamen a navigate().
+function setupNavigation() {
+  // Captura clicks en <a data-link>
   document.body.addEventListener("click", (e) => {
-    // Si el click viene de un <a>
-    if (e.target.tagName === "A" && e.target.hasAttribute("data-link")) {   // data-link es un marcador interno para diferenciar qué enlaces maneja tu router SPA y cuáles son externos que debe abrir el navegador normalmente.
+    if (e.target.tagName === "A" && e.target.hasAttribute("data-link")) {
       e.preventDefault();
       const path = e.target.getAttribute("href");
-      navigate(path);  //Cambia la URL con pushState y renderiza la vista.
-      renderRoute(path); // Renderiza la nueva ruta correspondiente
+      navigate(path);
+      renderRoute(path);
     }
   });
 }
 
 // Inicializar app
 document.addEventListener("DOMContentLoaded", () => {
+  // Montar navbar al inicio del body
+  document.body.prepend(Navbar());
+
+  // Crear contenedor para las vistas
+  const root = document.getElementById("app");
+  const container = document.createElement("div");
+  container.classList.add("view-container");
+  root.appendChild(container);
+
   setupNavigation();
-  renderRoute(window.location.pathname); // Renderiza lo que corresponda cuando la app carga.
+
+  // Render inicial según la URL
+  renderRoute(window.location.pathname);
 });
 
-// Maneja los botones atrás/adelante del navegador
+// Manejar atrás/adelante del navegador
 window.addEventListener("popstate", () => {
   renderRoute(window.location.pathname);
 });

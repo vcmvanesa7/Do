@@ -55,8 +55,8 @@ export function renderRoute(path) {  // path es un parámetro que recibo al llam
   }
 
   // Renderizar la vista
-app.innerHTML = "";             // limpia contenedor
-app.appendChild(route(params)); // agrega el HTMLElement devuelto
+  app.innerHTML = "";             // limpia contenedor
+  app.appendChild(route(params)); // agrega el HTMLElement devuelto
 
 }
 
@@ -72,7 +72,7 @@ app.appendChild(route(params)); // agrega el HTMLElement devuelto
 // 2. renderRoute(path):
 //    - Llama a la función encargada de renderizar la vista correspondiente a la ruta.
       - Esto hace que el contenido de la SPA (Single Page Application) cambie dinámicamente.
-*/ 
+*/
 
 export function navigate(path) {
   window.history.pushState({}, "", path); // pushState Permite cambiar la URL que aparece en la barra de direcciones sin recargar la página.
