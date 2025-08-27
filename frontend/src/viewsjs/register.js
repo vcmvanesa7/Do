@@ -4,6 +4,7 @@
 // Contiene un formulario básico de registro 
 
 import { navigate } from "../router.js";
+import { api } from "../services/api.js";
 
 export function RegisterView() {
   const section = document.createElement("section");
@@ -11,9 +12,9 @@ export function RegisterView() {
   section.innerHTML = `
     <h1>Registro</h1>
     <form id="registerForm">
-      <input type="text" placeholder="Usuario" required>
-      <input type="email" placeholder="Correo electrónico" required>
-      <input type="password" placeholder="Contraseña" required>
+      <input type="text"  name="name" placeholder="Usuario" required>
+      <input type="email"  name="email" placeholder="Correo electrónico" required>
+      <input type="password"  name="password" placeholder="Contraseña" required>
       <button type="submit" class="btn">Registrarme</button>
     </form>
     <p>¿Ya tienes cuenta? 
@@ -22,18 +23,20 @@ export function RegisterView() {
   `;
 
   // Lógica del formulario
-  const registerForm = section.querySelector("#registerForm");
-  registerForm.addEventListener("submit", (e) => {
+  section.querySelector("#registerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const user = registerForm.querySelector("input[type='text']").value;
-    const email = registerForm.querySelector("input[type='email']").value;
-    const password = registerForm.querySelector("input[type='password']").value;
-
-    if (user && email && password) {
-      alert(`✅ Usuario ${user} registrado con éxito`);
-      navigate("/login"); // redirige al login
-    } else {
-      alert("⚠️ Completa todos los campos");
+    const form = e.currentTarget;
+    const payload = {
+      nombre: form.querySelector('input[name="name"]').value.trim(),
+      email: form.querySelector('input[name="email"]').value.trim(),
+      password: form.querySelector('input[name="password"]').value,
+    };
+    try {
+      await api.post("/auth/register", payload, { auth: false });
+      alert("✅ Registro exitoso, inicia sesión");
+      navigate("/login");
+    } catch (err) {
+      alert("❌ " + err.message);
     }
   });
 
