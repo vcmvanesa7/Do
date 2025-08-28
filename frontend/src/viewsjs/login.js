@@ -3,6 +3,7 @@
 // Contiene un formulario básico de login
 
 import { navigate } from "../router.js";
+import { api } from "../services/api.js";
 
 export function LoginView() {
   const section = document.createElement("section");
@@ -10,9 +11,9 @@ export function LoginView() {
   section.innerHTML = `
     <h1>Iniciar Sesión</h1>
     <form id="loginForm">
-      <input type="email" placeholder="Correo electrónico" required>
-      <input type="password" placeholder="Contraseña" required>
-      <button type="submit" class="btn">Entrar</button>
+      <input type="email"  name="email" placeholder="Correo electrónico" required>
+      <input type="password" name="password" placeholder="Contraseña" required>
+      <button type="submit" class="btn">Log In</button>
     </form>
     <p>¿No tienes cuenta? 
       <a data-link href="/register" class="btn">Regístrate</a>
@@ -20,17 +21,21 @@ export function LoginView() {
   `;
 
   // Lógica del formulario
-  const loginForm = section.querySelector("#loginForm");
-  loginForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const email = loginForm.querySelector("input[type='email']").value;
-    const password = loginForm.querySelector("input[type='password']").value;
 
-    if (email && password) {
-      alert(`✅ Bienvenido ${email}`);
-      navigate("/dashboard"); // redirige tras login
-    } else {
-      alert("⚠️ Ingresa tus credenciales");
+  section.querySelector("#loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const payload = { 
+      email: form.querySelector('input[name="email"]').value.trim(),
+      password: form.querySelector('input[name="password"]').value,
+    };
+    try {
+      const { token, user } = await api.post("/auth/login", payload, { auth: false });
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      navigate("/dashboard");
+    } catch (err) {
+      alert("❌ " + err.message);
     }
   });
 

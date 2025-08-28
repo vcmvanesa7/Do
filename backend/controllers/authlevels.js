@@ -1,77 +1,123 @@
-// controllers/levelsController.js
 import db from '../config/db.js';
 
-/**
- * GET /courses
- */
-export const getCourse = async (req, res) => {
+// GET /levels
+export const getAllLevels = async (req, res) => {
   try {
-    const { data, error } = await db.from('courses').select('*').order('name', { ascending: true });
+    const { data, error } = await db
+      .from('level')
+      .select('id_level, name, description, step, id_courses, finished')
+      .order('id_courses', { ascending: true })
+      .order('step', { ascending: true });
+
     if (error) throw error;
     res.status(200).json(data);
   } catch (error) {
-    console.error('getCourse error', error);
-    res.status(500).json({ error: 'Error al obtener los Courses' });
+    console.error('getAllLevels error', error);
+    res.status(500).json({ error: 'Error al obtener los niveles' });
   }
 };
 
-/**
- * GET /courses/:id/levels?userId=...
- * Devuelve los niveles del course con flags: finished, isUnlocked
- */
-export const getLevelsByCourse = async (req, res) => {
-  const { id_courses } = req.params;
-  // userId: se puede pasar por query o por header (cuando tengas auth real usar token)
-  const userId = req.query.userId || req.header('x-user-id') || null;
+// GET /levels/:id_level
+export const getLevelById = async (req, res) => {
+  const { id_level } = req.params;
 
   try {
-    // 1) Traer niveles ordenados
-    const { data: levels, error: levelsError } = await db
+    const { data, error } = await db
       .from('level')
-      .select('id_level, name, description, step')
-      .eq('id_courses', id_courses)
+      .select('id_level, name, description, step, id_courses, finished')
+      .eq('id_level', id_level)
+      .single(); // solo un registro
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    console.error('getLevelById error', error);
+    res.status(500).json({ error: 'Error al obtener el nivel' });
+  }
+};
+
+// GET /levels/course/:id_course
+export const getLevelsByCourse = async (req, res) => {
+  const { id_course } = req.params;
+
+  try {
+    const { data, error } = await db
+      .from('level')
+      .select('*')
+      .eq('id_courses', id_course)
       .order('step', { ascending: true });
-    if (levelsError) throw levelsError;
 
-    if (!levels.length) return res.status(200).json({ coursesId: +id_courses, levels: [] });
+    if (error) throw error;
 
-    // 2) Traer progreso del usuario para esos niveles (si no hay userId, progressRows = [])
-    let progressRows = [];
-    if (userId) {
-      const levelIds = levels.map(l => l.id_level);
-      const { data: progressRows, error: progressError } = await db
-        .from('progress')
-        .select('id_level, status')
-        .eq('id_user', userId)
-        .in('id_level', levelIds);
-      if (progressError) throw progressError;
-      progressRows = progressRows;
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: `No se encontraron niveles para el curso con id ${id_course}` });
     }
 
-    const progMap = new Map(progressRows.map(p => [p.id_level, p.status]));
-
-    // 3) Lógica de desbloqueo: primer nivel desbloqueado; siguiente desbloqueado solo si anterior finished (status==2)
-    // status mapping: 0=pending,1=in_progress,2=completed,3=failed
-    let unlocked = true;
-    const levelsWithFlags = levels.map(lvl => {
-      const status = progMap.get(lvl.id_level); // puede ser undefined
-      const finished = status === 2;
-      const isUnlocked = unlocked;
-      // Si este nivel NO está terminado, los siguientes se bloquean
-      if (!finished) unlocked = false;
-      return {
-        id_level: lvl.id_level,
-        name: lvl.name,
-        description: lvl.description,
-        step: lvl.step,
-        finished: !!finished,
-        isUnlocked
-      };
-    });
-
-    res.status(200).json({ coursesId: +id_courses, levels: levelsWithFlags, userId: userId || null });
+    res.status(200).json(data);
   } catch (error) {
     console.error('getLevelsByCourse error', error);
-    res.status(500).json({ error: 'Error al obtener los niveles' });
+    res.status(500).json({ error: 'Error al obtener los niveles del curso' });
+  }
+};
+
+// CREATE /levels
+export const createLevel = async (req, res) => {
+  const { name, description, step, id_courses, finished } = req.body;
+
+  if (!name || !id_courses) {
+    return res.status(400).json({ error: 'Nombre y id_courses son obligatorios' });
+  }
+
+  try {
+    const { data, error } = await db
+      .from('level')
+      .insert([{ name, description, step, id_courses, finished }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (error) {
+    console.error('createLevel error', error);
+    res.status(500).json({ error: 'Error al crear el nivel' });
+  }
+};
+
+// UPDATE /levels/:id_level
+export const updateLevel = async (req, res) => {
+  const { id_level } = req.params;
+  const { name, description, step, finished } = req.body;
+
+  try {
+    const { data, error } = await db
+      .from('level')
+      .update({ name, description, step, finished })
+      .eq('id_level', id_level)
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    console.error('updateLevel error', error);
+    res.status(500).json({ error: 'Error al actualizar el nivel' });
+  }
+};
+
+// DELETE /levels/:id_level
+export const deleteLevel = async (req, res) => {
+  const { id_level } = req.params;
+
+  try {
+    const { error } = await db
+      .from('level')
+      .delete()
+      .eq('id_level', id_level);
+
+    if (error) throw error;
+    res.status(204).send();
+  } catch (error) {
+    console.error('deleteLevel error', error);
+    res.status(500).json({ error: 'Error al eliminar el nivel' });
   }
 };
