@@ -2,6 +2,7 @@ import express from "express";
 import { check, validationResult } from "express-validator";
 import { Register, Login } from "../controllers/authControllers.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { roleMiddleware } from "../middlewares/roleMiddleware.js";
 import supabase from "../config/db.js";
 
 const router = express.Router();
