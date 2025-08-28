@@ -16,8 +16,6 @@ function setupNavigation() {
 
 // Inicializar app
 document.addEventListener("DOMContentLoaded", () => {
-  // Montar navbar al inicio del body
-  document.body.prepend(Navbar());
 
   // Crear contenedor para las vistas
   const root = document.getElementById("app");

@@ -6,6 +6,7 @@ import { DashboardView } from "./viewsjs/dashboard.js";
 import { CourseView } from "./viewsjs/course.js";
 import { LevelView } from "./viewsjs/level.js";
 import { ProfileView } from "./viewsjs/profile.js";
+import { Navbar } from "./components/navbar.js"; 
 
 // Definimos las rutas
 const routes = {
@@ -17,6 +18,7 @@ const routes = {
   "/level/:id": LevelView,
   "/profile": ProfileView,
 };
+
 
 // Renderiza según la ruta
 export function renderRoute(path) {  // path es un parámetro que recibo al llamar la función
@@ -56,6 +58,21 @@ export function renderRoute(path) {  // path es un parámetro que recibo al llam
 
   // Renderizar la vista
   app.innerHTML = "";             // limpia contenedor
+
+const privateRoutes = ["/dashboard", "/course", "/level", "/profile"];
+
+const isPrivate = 
+privateRoutes.includes(path) ||
+path.startsWith("/course/") ||
+path.startsWith("/level/");
+
+if (isPrivate) {
+  app.appendChild(Navbar()); // agrega la navbar
+}
+
+  
+
+
   app.appendChild(route(params)); // agrega el HTMLElement devuelto
 
 }
