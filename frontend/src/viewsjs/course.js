@@ -1,6 +1,5 @@
-// src/viewsjs/course.js
-// #5 Vista del curso
 
+// src/viewsjs/course.js
 import { api } from "../services/api.js";
 import { navigate } from "../router.js";
 
@@ -11,22 +10,29 @@ export function CourseView(params) {
 
   (async () => {
     try {
-      const { levels } = await api.get(`/levels/courses/${courseId}/levels`);
+      // BACKEND: GET /levels/course/:id_course -> devuelve array de levels
+      const levels = await api.get(`/levels/course/${courseId}`);
+
       section.innerHTML = `
         <h1>📚 Niveles del curso</h1>
-        <div class="niveles-grid">
-          ${levels.map(l => `
-            <div class="nivel-card">
-              <h3>${l.step}. ${l.name}</h3>
+        <div class="levels-list">
+          ${levels
+          .map(
+            (l) => `
+            <div class="level-card">
+              <h3>${l.name}</h3>
               <p>${l.description ?? ""}</p>
-              <button class="btn" data-id="${l.id_level}">Abrir nivel</button>
+              <button data-id="${l.id_level}" class="btn">Entrar</button>
             </div>
-          `).join("")}
+          `
+          )
+          .join("")}
         </div>
         <p><a data-link href="/dashboard">← Volver</a></p>
       `;
 
-      section.querySelectorAll("button[data-id]").forEach(btn => {
+      // listeners botones entrar
+      section.querySelectorAll("button[data-id]").forEach((btn) => {
         btn.addEventListener("click", () => {
           navigate(`/level/${btn.dataset.id}`);
         });

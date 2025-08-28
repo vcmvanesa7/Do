@@ -5,24 +5,28 @@
 
 import { api } from "../services/api.js";
 
-// src/views/dashboard.js
 export function DashboardView() {
   const section = document.createElement("section");
   section.innerHTML = `<h1>Dashboard</h1><p>Cargando cursos...</p>`;
 
   (async () => {
     try {
-      const courses = await api.get("/levels/courses");
+      // BACKEND: GET /courses  -> devuelve array de cursos
+      const courses = await api.get("/courses");
       section.innerHTML = `
-        <h1>🏁 Tus cursos</h1>
-        <div class="cursos-grid">
-          ${courses.map(c => `
+        <h1>Dashboard</h1>
+        <div class="courses-grid">
+          ${courses
+          .map(
+            (c) => `
             <div class="curso-card">
               <h2>${c.name}</h2>
               <p>${c.description ?? ""}</p>
               <a data-link class="btn" href="/course/${c.id_courses}">Entrar</a>
             </div>
-          `).join("")}
+          `
+          )
+          .join("")}
         </div>
       `;
     } catch (err) {
