@@ -2,10 +2,14 @@ import jwt from "jsonwebtoken";
 
 const SECRET = process.env.JWT_SECRET || "super_secret_key";
 
-// Generar token
+// Generar token incluyendo rol
 export function generateToken(user) {
   return jwt.sign(
-    { id: user.id_user, email: user.email },
+    {
+      id_user: user.id_user,
+      email: user.email,
+      role: user.role, // importante para roleMiddleware
+    },
     SECRET,
     { expiresIn: "1h" }
   );

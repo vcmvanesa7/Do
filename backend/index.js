@@ -1,8 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+
 import { authRouter, levelsRouter, exercisesRouter, coursesRouter } from "./routes/index.js";
 import progressRouter from "./routes/progressRoutes.js";
+
 
 dotenv.config();
 
@@ -20,6 +22,7 @@ app.use(express.json());
 app.use('/auth', authRouter);
 app.use('/levels', levelsRouter);
 app.use('/exercises', exercisesRouter);
+
 app.use('/courses', coursesRouter);
 app.use('/progress', progressRouter);
 
