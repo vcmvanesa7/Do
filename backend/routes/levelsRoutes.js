@@ -6,4 +6,4 @@ const router = express.Router();
 router.get('/courses', getCourse);
 router.get('/courses/:id_courses/levels', getLevelsByCourse);
 
-export const levelsRouter = router;
+export const levelsRouter = router; 

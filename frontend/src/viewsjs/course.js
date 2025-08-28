@@ -3,48 +3,79 @@
 // Exporta una función que retorna el HTML de la vista del curso
 // Contiene detalles del curso y enlaces a niveles
 
+// src/viewsjs/course.js
 import { navigate } from "../router.js";
 
 export function CourseView(params) {
   const section = document.createElement("section");
+  section.innerHTML = `<p>Cargando curso...</p>`; // loading state
 
-  // Obtenemos el id del curso desde params
   const cursoId = params.id;
 
-  // Simulamos niveles del curso
-  const niveles = [
-    { id: 1, nombre: "Nivel 1: Introducción" },
-    { id: 2, nombre: "Nivel 2: Intermedio" },
-    { id: 3, nombre: "Nivel 3: Avanzado" },
-  ];
+  // Función para pedir datos al backend
+  async function fetchCourseLevels() {
+    try {
+      const res = await fetch(`http://localhost:3001/courses/${cursoId}/levels?userId=1`);
+      if (!res.ok) throw new Error("Error en la respuesta del servidor");
+      const data = await res.json();
 
-  // Generar HTML de los niveles
-  const nivelesHTML = niveles
-    .map(
-      (nivel) => `
-      <div class="nivel">
-        <h3>${nivel.nombre}</h3>
-        <button class="btn" data-id="${nivel.id}">Ver Nivel</button>
-      </div>
-    `
-    )
-    .join("");
+      // data tendrá: { coursesId, levels: [...], userId }
+      renderLevels(data);
+    } catch (err) {
+      console.error("Error al obtener niveles:", err);
+      section.innerHTML = `<p>Error al cargar el curso. Intenta más tarde.</p>`;
+    }
+  }
 
-  section.innerHTML = `
-    <h1>Curso ${cursoId}</h1>
-    <p>Selecciona un nivel para continuar:</p>
-    <div class="niveles">${nivelesHTML}</div>
-    <a data-link href="/dashboard" class="btn">Volver al Dashboard</a>
-  `;
+  // Función para renderizar los niveles
+  function renderLevels(data) {
+    if (!data.levels || data.levels.length === 0) {
+      section.innerHTML = `
+        <h1>Curso ${data.coursesId}</h1>
+        <p>No hay niveles disponibles todavía.</p>
+        <a data-link href="/dashboard" class="btn">Volver al Dashboard</a>
+      `;
+      return;
+    }
 
-  // Lógica de los botones de nivel
-  const botones = section.querySelectorAll(".nivel button");
-  botones.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const nivelId = btn.getAttribute("data-id");
-      navigate(`/level/${nivelId}`); // Redirige a Level/:id
+    const nivelesHTML = data.levels
+      .map(
+        (nivel) => `
+          <div class="nivel ${nivel.isUnlocked ? "" : "bloqueado"}">
+            <h3>${nivel.name}</h3>
+            <p>${nivel.description}</p>
+            <button 
+              class="btn" 
+              data-id="${nivel.id_level}" 
+              ${nivel.isUnlocked ? "" : "disabled"}>
+              ${nivel.isUnlocked ? "Ver Nivel" : "Bloqueado 🔒"}
+            </button>
+          </div>
+        `
+      )
+      .join("");
+
+    section.innerHTML = `
+      <h1>Curso ${data.coursesId}</h1>
+      <p>Selecciona un nivel para continuar:</p>
+      <div class="niveles">${nivelesHTML}</div>
+      <a data-link href="/dashboard" class="btn">Volver al Dashboard</a>
+    `;
+
+    // Lógica de navegación
+    const botones = section.querySelectorAll(".nivel button");
+    botones.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const nivelId = btn.getAttribute("data-id");
+        if (nivelId && !btn.disabled) {
+          navigate(`/level/${nivelId}`);
+        }
+      });
     });
-  });
+  }
+
+  // Llamamos al back
+  fetchCourseLevels();
 
   return section;
 }
