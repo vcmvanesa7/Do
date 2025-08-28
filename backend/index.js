@@ -10,7 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Rutas principales
+
 app.use('/auth', authRouter);
 app.use('/levels', levelsRouter);
 app.use('/exercises', exercisesRouter);
