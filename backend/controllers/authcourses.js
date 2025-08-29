@@ -6,7 +6,7 @@ export const getCourses = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("courses")
-      .select("id_course, name, description")
+      .select("id_courses, name, description")
       .order("name", { ascending: true });
 
     if (error) throw error;
@@ -17,34 +17,31 @@ export const getCourses = async (req, res) => {
   }
 };
 
-// ---------------- GET /courses/:id ----------------
+// ---------------- GET /courses/:id_courses ----------------
 export const getCourseById = async (req, res) => {
-  const { id } = req.params;
-
+  const { id_courses } = req.params;
   try {
+    console.log("Buscando curso con id_courses:", id_courses);
     const { data, error } = await supabase
       .from("courses")
-      .select("id_course, name, description")
-      .eq("id_course", id)
+      .select("id_courses, name, description")
+      .eq("id_courses", id_courses)
       .single();
-
+    console.log("Resultado:", data, error);
     if (error) throw error;
     if (!data) return res.status(404).json({ error: "Curso no encontrado" });
 
     res.status(200).json(data);
   } catch (error) {
     console.error("getCourseById error", error);
-    res.status(500).json({ error: "Error al obtener el curso" });
+    res.status(500).json({ error: "Error al obtener el curso", details: error?.message || error });
   }
 };
 
 // ---------------- POST /courses ----------------
 export const createCourse = async (req, res) => {
   const { name, description } = req.body;
-
-  if (!name) {
-    return res.status(400).json({ error: "El nombre del curso es obligatorio" });
-  }
+  if (!name) return res.status(400).json({ error: "El nombre del curso es obligatorio" });
 
   try {
     const { data, error } = await supabase
@@ -61,16 +58,16 @@ export const createCourse = async (req, res) => {
   }
 };
 
-// ---------------- PUT /courses/:id ----------------
+// ---------------- PUT /courses/:id_courses ----------------
 export const updateCourse = async (req, res) => {
-  const { id } = req.params;
+  const { id_courses } = req.params;
   const { name, description } = req.body;
 
   try {
     const { data, error } = await supabase
       .from("courses")
       .update({ name, description })
-      .eq("id_course", id)
+      .eq("id_courses", id_courses)
       .select()
       .single();
 
@@ -82,15 +79,14 @@ export const updateCourse = async (req, res) => {
   }
 };
 
-// ---------------- DELETE /courses/:id ----------------
+// ---------------- DELETE /courses/:id_courses ----------------
 export const deleteCourse = async (req, res) => {
-  const { id } = req.params;
-
+  const { id_courses } = req.params;
   try {
     const { data, error } = await supabase
       .from("courses")
       .delete()
-      .eq("id_course", id)
+      .eq("id_courses", id_courses)
       .select()
       .single();
 

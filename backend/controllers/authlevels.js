@@ -36,15 +36,15 @@ export const getLevelById = async (req, res) => {
   }
 };
 
-// GET /levels/course/:id_course
+// GET /levels/course/:id_courses
 export const getLevelsByCourse = async (req, res) => {
-  const { id_course } = req.params;
+  const { id_courses } = req.params;
 
   try {
     const { data, error } = await db
       .from('level')
       .select('*')
-      .eq('id_courses', id_course)
+      .eq('id_courses', id_courses)
       .order('step', { ascending: true });
 
     if (error) throw error;

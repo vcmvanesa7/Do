@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import { authRouter, levelsRouter, exercisesRouter, coursesRouter, theoryRouter } from "./routes/index.js";
+import { authRouter, levelsRouter, exercisesRouter, coursesRouter, theoryRouter, quizRouter } from "./routes/index.js";
 import progressRouter from "./routes/progressRoutes.js";
 
 
@@ -25,6 +25,7 @@ app.use('/exercises', exercisesRouter);
 app.use('/courses', coursesRouter);
 app.use('/progress', progressRouter);
 app.use('/theory', theoryRouter);
+app.use('/quiz', quizRouter);
 
 // Inicia el Servidor
 const PORT = Number(process.env.PORT) || 3001;

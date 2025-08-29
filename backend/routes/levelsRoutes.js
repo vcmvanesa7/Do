@@ -20,7 +20,7 @@ router.get("/", authMiddleware, roleMiddleware(["user", "admin"]), getAllLevels)
 router.get("/:id_level", authMiddleware, roleMiddleware(["user", "admin"]), getLevelById);
 
 // Ver niveles por curso → user y admin
-router.get("/course/:id_course", authMiddleware, roleMiddleware(["user", "admin"]), getLevelsByCourse);
+router.get("/course/:id_courses", authMiddleware, roleMiddleware(["user", "admin"]), getLevelsByCourse);
 
 // Crear nivel → solo admin
 router.post("/", authMiddleware, roleMiddleware(["admin"]), createLevel);

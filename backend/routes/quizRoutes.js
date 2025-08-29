@@ -18,8 +18,7 @@ const router = express.Router();
 router.post("/", authMiddleware, roleMiddleware(["admin"]), createQuiz);
 
 /**
- * GET /quiz → lectura pública
- * Si después quieres protegerlo, agrega authMiddleware y/o roleMiddleware.
+ * GET /quiz → lectura pública (si quieres proteger, añade middlewares)
  */
 router.get("/", getQuizzes);
 
