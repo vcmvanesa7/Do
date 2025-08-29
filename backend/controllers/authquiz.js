@@ -2,6 +2,7 @@
 import supabase from "../config/db.js";
 import { sanitizeString } from "../utils/sanitize.js";
 
+const VALID_TYPES = ["multiple_choice", "code_fix", "code_creation"];
 
 /**
  * POST /quiz
@@ -10,14 +11,14 @@ import { sanitizeString } from "../utils/sanitize.js";
 export const createQuiz = async (req, res) => {
   try {
     const name = sanitizeString(req.body.name);
-    const type = Number(req.body.type);
+    const type = req.body.type?.trim();
     const id_theory = Number(req.body.id_theory);
 
-    if (!name || !Number.isInteger(type) || !Number.isInteger(id_theory)) {
-      return res.status(400).json({ error: "type (INT), name y id_theory son obligatorios y válidos" });
+    if (!name || !VALID_TYPES.includes(type) || !Number.isInteger(id_theory)) {
+      return res.status(400).json({ error: "type (ENUM), name y id_theory son obligatorios y válidos" });
     }
 
-    // Verificar existencia de la teoría (foreign key)
+    // Verificar existencia de la teoría
     const { data: theory, error: theoryError } = await supabase
       .from("theory")
       .select("id_theory, id_level")
@@ -48,7 +49,6 @@ export const createQuiz = async (req, res) => {
 
 /**
  * GET /quiz
- * - Lectura pública (opcional filtro por id_theory)
  */
 export const getQuizzes = async (req, res) => {
   try {
@@ -77,7 +77,7 @@ export const getQuizzes = async (req, res) => {
 };
 
 /**
- * PUT /quiz/:id_quiz - reemplazo completo (solo admin)
+ * PUT /quiz/:id_quiz
  */
 export const updateQuiz = async (req, res) => {
   try {
@@ -85,8 +85,11 @@ export const updateQuiz = async (req, res) => {
     if (!Number.isInteger(id_quiz)) return res.status(400).json({ error: "id inválido" });
 
     const name = sanitizeString(req.body.name);
-    const type = Number(req.body.type);
-    if (!name || !Number.isInteger(type)) return res.status(400).json({ error: "name y type requeridos y válidos" });
+    const type = req.body.type?.trim();
+
+    if (!name || !VALID_TYPES.includes(type)) {
+      return res.status(400).json({ error: "name y type (ENUM) requeridos y válidos" });
+    }
 
     const { data, error } = await supabase
       .from("quiz")
@@ -108,7 +111,7 @@ export const updateQuiz = async (req, res) => {
 };
 
 /**
- * PATCH /quiz/:id_quiz - actualización parcial (solo admin)
+ * PATCH /quiz/:id_quiz
  */
 export const patchQuiz = async (req, res) => {
   try {
@@ -118,9 +121,9 @@ export const patchQuiz = async (req, res) => {
     const payload = {};
     if (req.body.name) payload.name = sanitizeString(req.body.name);
     if (req.body.type !== undefined) {
-      const t = Number(req.body.type);
-      if (!Number.isInteger(t)) return res.status(400).json({ error: "type debe ser un entero" });
-      payload.type = t;
+      const type = req.body.type.trim();
+      if (!VALID_TYPES.includes(type)) return res.status(400).json({ error: "type debe ser un ENUM válido" });
+      payload.type = type;
     }
 
     if (!Object.keys(payload).length) return res.status(400).json({ error: "Nada para actualizar" });
@@ -145,7 +148,7 @@ export const patchQuiz = async (req, res) => {
 };
 
 /**
- * DELETE /quiz/:id_quiz - solo admin
+ * DELETE /quiz/:id_quiz
  */
 export const deleteQuiz = async (req, res) => {
   try {
