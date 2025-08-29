@@ -14,7 +14,7 @@ export function Navbar() {
     </ul>
   `;
 
-  // ✅ Logout corregido
+  //  Logout 
   nav.querySelector("#logoutBtn").addEventListener("click", (e) => {
     e.preventDefault();
 
