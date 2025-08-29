@@ -17,9 +17,10 @@ export function RegisterView() {
       <input type="password"  name="password" placeholder="Contraseña" required>
       <button type="submit" class="btn">Registrarme</button>
     </form>
-    <p>¿Ya tienes cuenta? 
-      <a data-link href="/login" class="btn">Ir a Login</a>
-    </p>
+    <div class="container_Gologin" >
+    <p>Are you already registered?</p>
+    <p><a data-link href="/login">Login</a></p>
+    </div>
   `;
 
   // Lógica del formulario

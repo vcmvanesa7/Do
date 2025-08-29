@@ -3,15 +3,15 @@ import { api } from "../services/api.js";
 
 export function DashboardAdminView() {
   const section = document.createElement("section");
-
+//delete the data-links for levels and courses
   section.innerHTML = `
-    <div class="admin-dashboard">
+    <div class="sidebar-logo">
       <!-- Menú lateral -->
       <nav class="admin-sidebar">
         <h2>Admin</h2>
         <ul>
-          <li><a href="#" data-link data-module="courses">Cursos</a></li>
-          <li><a href="#" data-link data-module="levels">Niveles</a></li>
+          <li><a href="#" data-module="courses">Cursos</a></li>  
+          <li><a href="#"  data-module="levels">Niveles</a></li>
         </ul>
       </nav>
 
@@ -31,7 +31,7 @@ export function DashboardAdminView() {
       e.preventDefault();
       const module = link.getAttribute("data-module");
 
-      // --- CURSOS ---
+      // --- Vista CURSOS ---
       if (module === "courses") {
         adminContent.innerHTML = `
           <h2>Gestionar Cursos</h2>
