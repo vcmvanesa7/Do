@@ -18,7 +18,7 @@ app.use(cors({
 //// Para que el backend entienda JSON en el body de las peticiones
 app.use(express.json());
 
-// Rutas principales
+
 app.use('/auth', authRouter);
 app.use('/levels', levelsRouter);
 app.use('/exercises', exercisesRouter);
