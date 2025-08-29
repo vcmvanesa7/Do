@@ -2,10 +2,10 @@
 import { navigate } from "../router.js";
 
 export function Navbar() {
-    const nav = document.createElement("nav");
-    nav.classList.add("sidebar");
+  const nav = document.createElement("nav");
+  nav.classList.add("sidebar");
 
-    nav.innerHTML = `
+  nav.innerHTML = `
     <div class="sidebar-logo">🚀 DevGame</div>
     <ul class="sidebar-links">
       <li><a data-link href="/dashboard">🏠 Dashboard</a></li>
@@ -14,12 +14,18 @@ export function Navbar() {
     </ul>
   `;
 
-    // Logout SPA
-    nav.querySelector("#logoutBtn").addEventListener("click", (e) => {
-        e.preventDefault();
-        localStorage.removeItem("isLoggedIn");
-        navigate("/"); // 🔹 usa tu router SPA → renderiza PublicView
-    });
+  // ✅ Logout corregido
+  nav.querySelector("#logoutBtn").addEventListener("click", (e) => {
+    e.preventDefault();
 
-    return nav;
+    // Borrar toda la sesión local
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("isLoggedIn");
+
+    // Redirigir al inicio (SPA)
+    navigate("/"); // 🔹 usa tu router SPA → renderiza PublicView
+  });
+
+  return nav;
 }
