@@ -1,60 +1,34 @@
+// routes/levels.js
 import express from "express";
+import {
+  getAllLevels,
+  getLevelById,
+  getLevelsByCourse,
+  createLevel,
+  updateLevel,
+  deleteLevel,
+} from "../controllers/authlevels.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { roleMiddleware } from "../middlewares/roleMiddleware.js";
-import supabase from "../config/db.js";
 
 const router = express.Router();
 
-// ---------------- GET /levels ----------------
-router.get("/", authMiddleware, roleMiddleware(["user", "admin"]), async (req, res) => {
-  const { data, error } = await supabase.from("level").select("*");
-  if (error) return res.status(400).json({ error: error.message });
-  res.json({ levels: data });
-});
+// Listar todos los niveles → user y admin
+router.get("/", authMiddleware, roleMiddleware(["user", "admin"]), getAllLevels);
 
-// ---------------- POST /levels ----------------
-router.post("/", authMiddleware, roleMiddleware(["admin"]), async (req, res) => {
-  const { name, description, step, id_course } = req.body;
-  if (!name || !step || !id_course)
-    return res.status(400).json({ error: "Nombre, step y curso son obligatorios" });
+// Ver un nivel por id → user y admin
+router.get("/:id_level", authMiddleware, roleMiddleware(["user", "admin"]), getLevelById);
 
-  const { data, error } = await supabase
-    .from("level")
-    .insert([{ name, description, step, id_course }])
-    .select();
+// Ver niveles por curso → user y admin
+router.get("/course/:id_course", authMiddleware, roleMiddleware(["user", "admin"]), getLevelsByCourse);
 
-  if (error) return res.status(400).json({ error: error.message });
-  res.json({ message: "Nivel creado", level: data[0] });
-});
+// Crear nivel → solo admin
+router.post("/", authMiddleware, roleMiddleware(["admin"]), createLevel);
 
-// ---------------- PUT /levels/:id ----------------
-router.put("/:id", authMiddleware, roleMiddleware(["admin"]), async (req, res) => {
-  const { id } = req.params;
-  const { name, description, step, id_course, finished } = req.body;
+// Actualizar nivel → solo admin
+router.put("/:id_level", authMiddleware, roleMiddleware(["admin"]), updateLevel);
 
-  const { data, error } = await supabase
-    .from("level")
-    .update({ name, description, step, id_course, finished })
-    .eq("id_level", id)
-    .select()
-    .single();
-
-  if (error) return res.status(400).json({ error: error.message });
-  res.json({ message: "Nivel actualizado", level: data });
-});
-
-// ---------------- DELETE /levels/:id ----------------
-router.delete("/:id", authMiddleware, roleMiddleware(["admin"]), async (req, res) => {
-  const { id } = req.params;
-
-  const { data, error } = await supabase
-    .from("level")
-    .delete()
-    .eq("id_level", id)
-    .select();
-
-  if (error) return res.status(400).json({ error: error.message });
-  res.json({ message: "Nivel eliminado", level: data[0] });
-});
+// Eliminar nivel → solo admin
+router.delete("/:id_level", authMiddleware, roleMiddleware(["admin"]), deleteLevel);
 
 export const levelsRouter = router;
