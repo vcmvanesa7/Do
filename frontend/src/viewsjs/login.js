@@ -13,9 +13,10 @@ export function LoginView() {
       <input type="password" name="password" placeholder="Contraseña" required>
       <button type="submit" class="btn">Iniciar sesión</button>
     </form>
-    <p>¿No tienes cuenta? 
-      <a data-link href="/register" class="btn">Regístrate</a>
-    </p>
+    <div class="container_Gologin" >
+    <p>You don't have an account</p>
+    <p><a data-link href="/register">Register</a></p>
+    </div>
   `;
 
   // Lógica del formulario
