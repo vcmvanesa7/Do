@@ -18,15 +18,16 @@ const router = express.Router();
 router.get("/", authMiddleware, roleMiddleware(["user", "admin"]), getCourses);
 
 // Ver un curso → user y admin
-router.get("/:id_course", authMiddleware, roleMiddleware(["user", "admin"]), getCourseById);
+router.get("/:id_courses", authMiddleware, roleMiddleware(["user", "admin"]), getCourseById);
 
 // Crear curso → solo admin
 router.post("/", authMiddleware, roleMiddleware(["admin"]), createCourse);
 
 // Actualizar curso → solo admin
-router.put("/:id_course", authMiddleware, roleMiddleware(["admin"]), updateCourse);
+router.put("/:id_courses", authMiddleware, roleMiddleware(["admin"]), updateCourse);
 
 // Eliminar curso → solo admin
-router.delete("/:id_course", authMiddleware, roleMiddleware(["admin"]), deleteCourse);
+router.delete("/:id_courses", authMiddleware, roleMiddleware(["admin"]), deleteCourse);
 
 export const coursesRouter = router;
+

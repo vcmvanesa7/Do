@@ -1,14 +1,3 @@
-/*RESET BÁSICO*/
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-#app {
-  display: flex;
-  flex-direction: row;
-}
 
 /* Contenedor donde se pintan las views */
 .view-container {
@@ -357,3 +346,298 @@ li {
   border-radius: 4px;
   cursor: pointer;
 }
+=======
+/*RESET BÁSICO*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#app {
+  display: flex;
+  flex-direction: row;
+}
+
+/* Contenedor donde se pintan las views */
+.view-container {
+  margin-left: 240px;
+  /* deja espacio para el sidebar */
+  padding: 2rem;
+  flex: 1;
+  min-height: 100vh;
+  background: #f5f6fa;
+  /* opcional, solo para diferenciar */
+}
+
+
+/*TIPOGRAFÍA RETRO / PIXEL*/
+body {
+  font-family: 'Press Start 2P', monospace, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #0b0e1a;
+  /* fondo oscuro arcade */
+  color: #e0e0e0;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+}
+
+/*Contenedor principal estilo retro / pixel*/
+section {
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/*Animación general*/
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*Títulos estilo arcade*/
+h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #8c7eff;
+  text-shadow: 0 0 4px #4fd1ff, 0 0 8px #ff3cf5;
+}
+
+/*Inputs con glow*/
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 1rem;
+  border: 2px solid #4fd1ff;
+  border-radius: 6px;
+  background-color: #1c1f2e;
+  color: #e0e0e0;
+  font-size: 0.95rem;
+  transition: 0.3s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #ff3cf5;
+  box-shadow: 0 0 8px #ff3cf5;
+}
+
+/*BOTONES NEÓN / GRADIENTE*/
+.btn,
+button {
+  display: inline-block;
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(90deg, #4fd1ff, #ff3cf5);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: 'Press Start 2P', monospace;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px #4fd1ff, 0 0 15px #ff3cf5;
+}
+
+.btn:hover,
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #4fd1ff, 0 0 25px #ff3cf5;
+}
+
+.btn:active,
+button:active {
+  transform: scale(0.98);
+}
+
+/*Texto extra estilo arcade*/
+p {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #a0a0a0;
+}
+
+/*Cursos y niveles con glow y animación*/
+.cursos,
+.niveles {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.curso,
+.nivel {
+  padding: 1rem;
+  border: 2px solid #4fd1ff;
+  border-radius: 8px;
+  text-align: center;
+  background-color: #101225;
+  box-shadow: 0 0 8px #4fd1ff, 0 0 15px #ff3cf5;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.curso:hover,
+.nivel:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 12px #4fd1ff, 0 0 25px #ff3cf5;
+}
+
+/*Lista retro */
+ul {
+  list-style-type: square;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+  color: #c0c0ff;
+}
+
+/*Animaciones de “pulse neón” para elementos importantes*/
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 5px #4fd1ff;
+  }
+
+  50% {
+    box-shadow: 0 0 15px #ff3cf5;
+  }
+
+  100% {
+    box-shadow: 0 0 5px #4fd1ff;
+  }
+}
+
+.curso:nth-child(1),
+.nivel:nth-child(1) {
+  animation: pulse 1.5s infinite;
+}
+
+.cursos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.curso-card {
+  background: #222;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #444;
+  transition: transform 0.3s;
+}
+
+.curso-card:hover {
+  transform: scale(1.05);
+}
+
+.progress-bar {
+  background: #555;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.progress {
+  height: 10px;
+  background: limegreen;
+}
+
+/* --- SIDEBAR LATERAL --- */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 220px;
+  background: linear-gradient(180deg, #101225, #1c1f2e);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1rem;
+  box-shadow: 2px 0 10px rgba(0, 255, 255, 0.3);
+  z-index: 1000;
+}
+
+/* Logo o título del sidebar */
+.sidebar-logo {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #8c7eff;
+  text-shadow: 0 0 4px #4fd1ff, 0 0 8px #ff3cf5;
+  text-align: center;
+  width: 100%;
+}
+
+/* Contenedor de links */
+.sidebar-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  width: 100%;
+  padding: 0;
+}
+
+/* Links */
+.sidebar-links a {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  color: #e0e0e0;
+  text-decoration: none;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 4px rgba(79, 209, 255, 0.3);
+}
+
+.sidebar-links a:hover {
+  background: linear-gradient(90deg, #4fd1ff, #ff3cf5);
+  color: white;
+  box-shadow: 0 0 8px #4fd1ff, 0 0 15px #ff3cf5;
+}
+
+/* Botón de salir */
+#logoutBtn {
+  margin-top: auto;
+  background: linear-gradient(90deg, #ff3cf5, #4fd1ff);
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  box-shadow: 0 0 6px #ff3cf5, 0 0 12px #4fd1ff;
+}
+
+#logoutBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #ff3cf5, 0 0 25px #4fd1ff;
+}
+
+/* Ajustar contenido */
+.view-container {
+  margin-left: 240px;
+  /* deja espacio para el sidebar */
+  padding: 2rem;
+  flex: 1;
+}
+
