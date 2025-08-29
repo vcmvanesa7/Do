@@ -55,7 +55,7 @@ CREATE TABLE quiz (
 -- =========================
 -- Tabla: questions
 -- =========================
-CREATE TYPE quiz_type AS ENUM ('multiple_choice', 'true_false', 'short_answer');
+CREATE TYPE quiz_type AS ENUM ('multiple_choice', 'code_fix', 'code_creation');
 
 CREATE TABLE questions (
     id_question SERIAL PRIMARY KEY,
