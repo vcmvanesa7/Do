@@ -1,76 +1,92 @@
--- ===============================
--- TABLA USERS
--- ===============================
+-- =========================
+-- Tabla: users
+-- =========================
 CREATE TABLE users (
     id_user SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    pass VARCHAR(255) NOT NULL,
-    createdAt TIMESTAMP DEFAULT NOW(),
-    photoURL TEXT
+    name VARCHAR,
+    email VARCHAR UNIQUE NOT NULL,
+    p VARCHAR, -- contraseña (puede encriptarse mejor en el backend)
+    createdat TIMESTAMP DEFAULT NOW(),
+    photourl TEXT,
+    role VARCHAR
 );
 
--- ===============================
--- TABLA LANGUAGES
--- ===============================
+-- =========================
+-- Tabla: courses
+-- =========================
 CREATE TABLE courses (
-    id_course SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    id_courses SERIAL PRIMARY KEY,
+    name VARCHAR NOT NULL,
     description TEXT
 );
 
--- ===============================
--- TABLA USERS_LANGUAGES (relación N:N entre users y languages)
--- ===============================
-CREATE TABLE users_courses (
-    id_user INT NOT NULL REFERENCES users(id_user) ON DELETE CASCADE,
-    id_courses INT NOT NULL REFERENCES languages(id_language) ON DELETE CASCADE,
-    level INT DEFAULT 0,
-    PRIMARY KEY (id_user, id_language)
-);
-
--- ===============================
--- TABLA LEVEL
--- ===============================
+-- =========================
+-- Tabla: level
+-- =========================
 CREATE TABLE level (
     id_level SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR NOT NULL,
     description TEXT,
-    step INT NOT NULL,
-    id_courses INT NOT NULL REFERENCES languages(id_language) ON DELETE CASCADE,
+    step INT,
+    id_courses INT REFERENCES courses(id_courses) ON DELETE CASCADE,
     finished BOOLEAN DEFAULT FALSE
 );
 
--- ===============================
--- TABLA THEORY
--- ===============================
+-- =========================
+-- Tabla: theory
+-- =========================
 CREATE TABLE theory (
     id_theory SERIAL PRIMARY KEY,
-    id_level INT NOT NULL REFERENCES level(id_level) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL,
+    id_level INT REFERENCES level(id_level) ON DELETE CASCADE,
+    name VARCHAR NOT NULL,
     content TEXT
 );
 
--- ===============================
--- TABLA QUIZ
--- ===============================
+-- =========================
+-- Tabla: quiz
+-- =========================
 CREATE TABLE quiz (
     id SERIAL PRIMARY KEY,
-    type INT NOT NULL, -- podría transformarse en ENUM (ej: opción múltiple, verdadero/falso)
-    name VARCHAR(255) NOT NULL,
-    id_theory INT NOT NULL REFERENCES theory(id_theory) ON DELETE CASCADE
+    name VARCHAR NOT NULL,
+    id_theory INT REFERENCES theory(id_theory) ON DELETE CASCADE,
+    type VARCHAR
 );
 
--- ===============================
--- TABLA PROGRESS
--- ===============================
+-- =========================
+-- Tabla: questions
+-- =========================
+CREATE TYPE quiz_type AS ENUM ('multiple_choice', 'true_false', 'short_answer');
+
+CREATE TABLE questions (
+    id_question SERIAL PRIMARY KEY,
+    id_quiz INT REFERENCES quiz(id) ON DELETE CASCADE,
+    question TEXT NOT NULL,
+    options JSONB, -- almacena las opciones de respuesta
+    answer INT,    -- índice de la respuesta correcta
+    type quiz_type,
+    solution TEXT
+);
+
+-- =========================
+-- Tabla: progress
+-- =========================
 CREATE TABLE progress (
     id_progress SERIAL PRIMARY KEY,
-    id_level INT NOT NULL REFERENCES level(id_level) ON DELETE CASCADE,
-    id_user INT NOT NULL REFERENCES users(id_user) ON DELETE CASCADE,
-    startAt DATE DEFAULT NOW(),
-    endAt DATE,
-    status INT -- se recomienda ENUM: 0=pending,1=in_progress,2=completed,3=failed
+    id_level INT REFERENCES level(id_level) ON DELETE CASCADE,
+    id_user INT REFERENCES users(id_user) ON DELETE CASCADE,
+    startat DATE,
+    endat DATE,
+    status INT
+);
+
+-- =========================
+-- Tabla: users_courses
+-- =========================
+CREATE TABLE users_courses (
+    id_user INT REFERENCES users(id_user) ON DELETE CASCADE,
+    id_courses INT REFERENCES courses(id_courses) ON DELETE CASCADE,
+    level INT,
+    PRIMARY KEY (id_user, id_courses)
 );
 
 -- ===============================
