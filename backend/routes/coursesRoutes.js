@@ -30,3 +30,4 @@ router.put("/:id_courses", authMiddleware, roleMiddleware(["admin"]), updateCour
 router.delete("/:id_courses", authMiddleware, roleMiddleware(["admin"]), deleteCourse);
 
 export const coursesRouter = router;
+

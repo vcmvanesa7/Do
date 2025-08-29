@@ -38,3 +38,4 @@ router.patch("/:id_quiz", authMiddleware, roleMiddleware(["admin"]), patchQuiz);
 router.delete("/:id_quiz", authMiddleware, roleMiddleware(["admin"]), deleteQuiz);
 
 export const quizRouter = router;
+

@@ -32,3 +32,4 @@ router.put("/:id_level", authMiddleware, roleMiddleware(["admin"]), updateLevel)
 router.delete("/:id_level", authMiddleware, roleMiddleware(["admin"]), deleteLevel);
 
 export const levelsRouter = router;
+

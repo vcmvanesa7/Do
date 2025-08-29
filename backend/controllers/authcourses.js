@@ -97,3 +97,4 @@ export const deleteCourse = async (req, res) => {
     res.status(500).json({ error: "Error al eliminar el curso" });
   }
 };
+

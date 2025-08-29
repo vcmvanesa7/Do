@@ -5,3 +5,4 @@ export { coursesRouter } from './coursesRoutes.js';
 export { theoryRouter } from './theoryRoutes.js';
 export { quizRouter } from './quizRoutes.js';
 export { default as progressRouter } from './progressRoutes.js';
+

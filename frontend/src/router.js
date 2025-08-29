@@ -1,3 +1,4 @@
+
 // src/router.js 
 import { PublicView } from "./viewsjs/public.js";
 import { RegisterView } from "./viewsjs/register.js";
@@ -118,3 +119,4 @@ window.onpopstate = () => renderRoute(window.location.pathname);
 
 // Inicializar en la ruta actual
 renderRoute(window.location.pathname);
+
