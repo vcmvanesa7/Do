@@ -1,51 +1,51 @@
-import { validationResult } from "express-validator";   // Importa validationResult para manejar errores de validación
-import bcrypt from "bcryptjs";                          // Importa bcryptjs para hashear contraseñas
-import supabase from "../config/db.js";                 // Importa la configuración de Supabase  
-import { generateToken } from "../config/jwt.js";      // Importa la función para generar tokens JWT
+import { validationResult } from "express-validator";
+import bcrypt from "bcryptjs";
+import supabase from "../config/db.js";
+import { generateToken } from "../config/jwt.js";
 
 // REGISTER
-export const Register = async (req, res) => {   // Controlador para registrar un nuevo usuario
+export const Register = async (req, res) => {
   try {
-    const errors = validationResult(req);       // Verifica si hay errores de validación
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() }); // Si hay errores, responde con estado 400 y los errores
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    const { nombre, email, password } = req.body;     // Extrae nombre, email y password del cuerpo de la solicitud
+    const { nombre, email, password, role } = req.body; // role opcional
 
-    const { data: existingUser, error: findError } = await supabase   // Verifica si el email ya está registrado
-      .from("users")  //nombre de la tabla en Supabase
-      .select("*")  // Selecciona todos los campos
-      .eq("email", email) // Filtra por email
-      .single();  //espera un solo resultado
+    // Verificar si ya existe el usuario
+    const { data: existingUser, error: findError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .single();
 
-    // Si hay un error en la consulta que no sea "no encontrado", responde con estado 500
     if (findError && findError.code !== "PGRST116") return res.status(500).json({ error: findError.message });
-    // Si ya existe un usuario con ese email, responde con estado 400
     if (existingUser) return res.status(400).json({ error: "El email ya está registrado" });
 
-    // Hashea la contraseña antes de guardarla en la base de datos
-    //10 es el número de rondas de salting (más alto es más seguro pero más lento)
+    // Hashear contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
- 
-    const { data, error: insertError } = await supabase //“espera la respuesta de Supabase, guárdame los datos en data y el error (si existe) en insertError”.
-      .from("users") 
-      .insert([{ name: nombre, email, pass: hashedPassword }]) // Inserta el nuevo usuario
-      .select() // Selecciona los datos insertados
-      .single(); 
 
-    // Si hay un error al insertar, responde con estado 500      
+    // Insertar usuario con rol por defecto 'user' si no se pasa
+    const { data, error: insertError } = await supabase
+      .from("users")
+      .insert([{ name: nombre, email, pass: hashedPassword, role: role || "user" }])
+      .select()
+      .single();
+
     if (insertError) return res.status(500).json({ error: insertError.message });
 
-    const token = generateToken(data);  // Genera un token JWT para el nuevo usuario
+    // Generar token JWT incluyendo rol
+    const token = generateToken(data);
 
     res.status(201).json({
       message: "Usuario registrado con éxito",
-      user: { id: data.id_user, nombre: data.name, email: data.email },
+      user: { id: data.id_user, nombre: data.name, email: data.email, role: data.role },
       token,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // LOGIN
 export const Login = async (req, res) => {
@@ -66,11 +66,12 @@ export const Login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.pass);
     if (!isMatch) return res.status(400).json({ error: "Credenciales inválidas" });
 
+    // Generar token JWT incluyendo rol
     const token = generateToken(user);
 
     res.json({
       message: "Login exitoso",
-      user: { id: user.id_user, nombre: user.name, email: user.email },
+      user: { id: user.id_user, nombre: user.name, email: user.email, role: user.role },
       token,
     });
   } catch (err) {

@@ -3,32 +3,36 @@
 // Exporta una función que retorna el HTML de la vista del dashboard
 // Contiene enlaces a cursos disponibles    
 
-// src/views/dashboard.js
+import { api } from "../services/api.js";
+
 export function DashboardView() {
   const section = document.createElement("section");
+  section.innerHTML = `<h1>Dashboard</h1><p>Cargando cursos...</p>`;
 
-  // Cursos simulados
-  const cursos = [
-    { id: 1, nombre: "Curso de HTML", progreso: 60 },
-    { id: 2, nombre: "Curso de CSS", progreso: 30 },
-    { id: 3, nombre: "Curso de JavaScript", progreso: 10 },
-  ];
-
-  section.innerHTML = `
-    <h1>🎮 Bienvenido a tu Aventura</h1>
-    <p>Selecciona un curso para continuar tu misión:</p>
-    <div class="cursos-grid">
-      ${cursos.map(c => `
-        <div class="curso-card">
-          <h2>${c.nombre}</h2>
-          <div class="progress-bar">
-            <div class="progress" style="width:${c.progreso}%"></div>
-          </div>
-          <a data-link href="/course/${c.id}" class="btn">Entrar</a>
+  (async () => {
+    try {
+      // BACKEND: GET /courses  -> devuelve array de cursos
+      const courses = await api.get("/courses");
+      section.innerHTML = `
+        <h1>Dashboard</h1>
+        <div class="courses-grid">
+          ${courses
+          .map(
+            (c) => `
+            <div class="curso-card">
+              <h2>${c.name}</h2>
+              <p>${c.description ?? ""}</p>
+              <a data-link class="btn" href="/course/${c.id_courses}">Entrar</a>
+            </div>
+          `
+          )
+          .join("")}
         </div>
-      `).join("")}
-    </div>
-  `;
+      `;
+    } catch (err) {
+      section.innerHTML = `<p>❌ No se pudieron cargar los cursos: ${err.message}</p>`;
+    }
+  })();
 
   return section;
 }
