@@ -293,8 +293,125 @@ li {
   flex: 1;
 }
 
+/* ==== Avatar (Perfil) ================================== */
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profile-meta {
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.avatar-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #0c0f1f;
+  border: 3px solid #4fd1ff;
+  box-shadow: 0 0 10px rgba(79, 209, 255, 0.4), 0 0 20px rgba(255, 60, 245, 0.25);
+  object-fit: cover;
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 12px;
+}
+
+.avatar-item {
+  background: transparent;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 8px;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+
+.avatar-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px rgba(79, 209, 255, 0.35);
+  border-color: #4fd1ff;
+}
+
+.avatar-item.selected {
+  border-color: #4fd1ff;
+  box-shadow: 0 0 12px rgba(79, 209, 255, 0.6), 0 0 24px rgba(255, 60, 245, 0.35);
+}
+
+.avatar-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Navbar: mini avatar */
+.sidebar-user {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: .5rem 0 1rem;
+}
+.sidebar-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid #4fd1ff;
+  object-fit: cover;
+  box-shadow: 0 0 8px rgba(79, 209, 255, 0.35);
+}
+
+/* ==== Avatar Placeholder ==== */
+.avatar-placeholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px dashed #4fd1ff;
+  background: rgba(255,255,255,0.05);
+}
+
+/* ==== Modal ==== */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal.hidden {
+  display: none;
+}
+.modal-content {
+  background: #0c0f1f;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(79,209,255,0.4);
+  max-width: 600px;
+  width: 90%;
+  position: relative;
+}
+.modal h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+.modal-close {
+  position: absolute;
+  top: .5rem;
+  right: .75rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #fff;
+}
+
 .container_Gologin {
 display: flex;
 flex-direction: row;
 align-content: center;
 }
+
