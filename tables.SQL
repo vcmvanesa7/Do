@@ -88,3 +88,11 @@ CREATE TABLE users_courses (
     level INT,
     PRIMARY KEY (id_user, id_courses)
 );
+
+-- ===============================
+-- ÍNDICES RECOMENDADOS
+-- ===============================
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_progress_user ON progress(id_user);
+CREATE INDEX idx_progress_level ON progress(id_level);
+CREATE INDEX idx_level_language ON level(id_language);

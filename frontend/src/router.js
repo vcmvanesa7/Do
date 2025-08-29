@@ -1,4 +1,5 @@
-// src/router.js
+
+// src/router.js 
 import { PublicView } from "./viewsjs/public.js";
 import { RegisterView } from "./viewsjs/register.js";
 import { LoginView } from "./viewsjs/login.js";
@@ -6,25 +7,43 @@ import { DashboardView } from "./viewsjs/dashboard.js";
 import { CourseView } from "./viewsjs/course.js";
 import { LevelView } from "./viewsjs/level.js";
 import { ProfileView } from "./viewsjs/profile.js";
+import { Navbar } from "./components/navbar.js";
 
-// Definimos las rutas
+//  Funciones helper para autenticación y roles
+// ==========================================================
+function isAuthenticated() {
+  return !!localStorage.getItem("token"); // devuelve true si existe token
+}
+
+function getUserRole() {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  return user.role || null; // devuelve rol del usuario o null
+}
+
+// Definimos las rutas de la aplicación
+// Ahora cada ruta puede tener metadata: auth y role
+// ==========================================================
 const routes = {
-  "/": PublicView,
-  "/register": RegisterView,
-  "/login": LoginView,
-  "/dashboard": DashboardView,
-  "/course/:id": CourseView,
-  "/level/:id": LevelView,
-  "/profile": ProfileView,
+  "/": { view: PublicView, auth: false },
+  "/register": { view: RegisterView, auth: false },
+  "/login": { view: LoginView, auth: false },
+  "/dashboard": { view: DashboardView, auth: true }, // requiere login
+  "/course/:id": { view: CourseView, auth: true },
+  "/level/:id": { view: LevelView, auth: true },
+  "/profile": { view: ProfileView, auth: true },
+  // Ejemplo de ruta protegida solo para admins:
+  // "/admin": { view: AdminView, auth: true, role: "admin" }
 };
 
-// Renderiza según la ruta
-export function renderRoute(path) {  // path es un parámetro que recibo al llamar la función
+//  Renderiza según la ruta
+// ==========================================================
+export function renderRoute(path) {
   const app = document.getElementById("app");
   let route = routes[path];
   let params = {};
 
-  // Manejo de rutas dinámicas
+  // Manejo de rutas dinámicas (ej: /course/:id)
+  // --------------------------------------------
   if (!route) {
     const pathParts = path.split("/");
     for (const routePath in routes) {
@@ -49,38 +68,55 @@ export function renderRoute(path) {  // path es un parámetro que recibo al llam
     }
   }
 
-  // Fallback
+  // Fallback: si no hay ruta, ir al PublicView
+  // --------------------------------------------
   if (!route) {
-    route = PublicView;
+    route = { view: PublicView, auth: false };
   }
 
-  // Renderizar la vista
-  app.innerHTML = "";             // limpia contenedor
-  app.appendChild(route(params)); // agrega el HTMLElement devuelto
 
+  //  Protecciones de autenticación y roles
+  // --------------------------------------------
+  if (route.auth && !isAuthenticated()) {
+    // Si la ruta requiere login y no hay token → mandar al login
+    return navigate("/login");
+  }
+
+  if (route.role && route.role !== getUserRole()) {
+    // Si la ruta requiere rol y no coincide → mandar al dashboard
+    return navigate("/dashboard");
+  }
+
+
+  // Renderizar la vista
+  // --------------------------------------------
+  app.innerHTML = ""; // limpia contenedor
+
+  // Navbar solo para rutas privadas
+  const privatePaths = ["/dashboard", "/profile"];
+  if (
+    (route.auth && !route.role) || // cualquier ruta privada sin rol especial
+    privatePaths.includes(path) || // lista fija
+    path.startsWith("/course/") || // dinámicas
+    path.startsWith("/level/")
+  ) {
+    app.appendChild(Navbar()); // agrega la navbar
+  }
+
+  app.appendChild(route.view(params)); // agrega el HTMLElement devuelto
 }
 
-/*Función para navegar sin recargar usando history.pushState
- 🔀 Función para navegar dentro de la aplicación sin recargar la página
-// Recibe como parámetro `path`, que representa la nueva ruta (ej: "/login", "/about").
-//
-// 1. window.history.pushState({}, "", path):
-//    - Agrega una nueva entrada al historial del navegador.
-//    - Cambia la URL que aparece en la barra de direcciones por la indicada en `path`.
-//    - Importante: NO recarga la página, solo actualiza la URL.
-//
-// 2. renderRoute(path):
-//    - Llama a la función encargada de renderizar la vista correspondiente a la ruta.
-      - Esto hace que el contenido de la SPA (Single Page Application) cambie dinámicamente.
-*/
 
+//  Navegación SPA sin recargar
+// ==========================================================
 export function navigate(path) {
-  window.history.pushState({}, "", path); // pushState Permite cambiar la URL que aparece en la barra de direcciones sin recargar la página.
+  window.history.pushState({}, "", path); // cambia URL sin recargar
   renderRoute(path); // Renderiza la nueva ruta correspondiente
 }
 
-// Detectar atrás/adelante
+// Detectar atrás/adelante en navegador
 window.onpopstate = () => renderRoute(window.location.pathname);
 
 // Inicializar en la ruta actual
 renderRoute(window.location.pathname);
+
