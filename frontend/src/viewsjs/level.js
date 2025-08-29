@@ -1,5 +1,6 @@
 // src/viewsjs/level.js
 import { navigate } from "../router.js";
+import { api } from "../services/api.js";
 
 export function LevelView(params) {
   const section = document.createElement("section");
@@ -9,36 +10,26 @@ export function LevelView(params) {
 
   async function fetchLevelData() {
     try {
-      // 👇 ajusta la URL según tu backend
-      const res = await fetch(`http://localhost:4000/levels/${nivelId}`);
-      if (!res.ok) throw new Error("Error en la respuesta del servidor");
+      // BACKEND: GET /levels/:id_level
+      const data = await api.get(`/levels/${nivelId}`);
 
-      const data = await res.json();
-      // data podría ser algo como:
-      // { id_level: 1, name: "Nivel 1", theory: "...", exercises: ["Ej 1", "Ej 2"] }
+      section.innerHTML = `
+        <h1>${data.name}</h1>
+        <p>${data.description || "Contenido no disponible"}</p>
+        <p><strong>Paso:</strong> ${data.step}</p>
 
-      renderLevel(data);
+        <h3>Teoría</h3>
+        <p>La tabla 'theory' existe en tu DB, pero todavía no hay ruta pública desde el backend para obtenerla por level. Si quieres la creo (ej: GET /theory/level/:id_level).</p>
+
+        <h3>Ejercicios / Quiz</h3>
+        <p>Los endpoints de quiz/preguntas no están implementados aún en backend (actualmente /exercises es placeholder).</p>
+
+        <a data-link href="/course/${data.id_courses}" class="btn">Volver al Curso</a>
+        <a data-link href="/dashboard" class="btn">Volver al Dashboard</a>
+      `;
     } catch (err) {
-      console.error("Error al cargar el nivel:", err);
-      section.innerHTML = `<p>Error al cargar nivel. Intenta más tarde.</p>`;
+      section.innerHTML = `<p>❌ Error al cargar el nivel: ${err.message}</p>`;
     }
-  }
-
-  function renderLevel(data) {
-    const ejerciciosHTML = (data.exercises || [])
-      .map((e) => `<li>${e}</li>`)
-      .join("");
-
-    section.innerHTML = `
-      <h1>${data.name || "Nivel " + nivelId}</h1>
-      <h3>Teoría</h3>
-      <p>${data.theory || "Contenido no disponible"}</p>
-      <h3>Ejercicios</h3>
-      <ul>${ejerciciosHTML}</ul>
-
-      <a data-link href="/course/${data.courseId}" class="btn">Volver al Curso</a>
-      <a data-link href="/dashboard" class="btn">Volver al Dashboard</a>
-    `;
   }
 
   // cargar del back
