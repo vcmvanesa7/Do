@@ -1,7 +1,7 @@
 // src/viewsjs/login.js
 
 import { navigate } from "../router.js";
-import { api } from "../services/api.js";
+import { apiRequest } from "../services/api.js";
 
 export function LoginView() {
   const section = document.createElement("section");
@@ -30,7 +30,10 @@ export function LoginView() {
 
     try {
       // Enviar el formulario de login
-      const { token, user } = await api.post("/auth/login", payload, { auth: false });
+      const { token, user } = await apiRequest("/auth/login", {
+        method: "POST",
+        body: payload,
+        auth: false });
 
       // Guardar el token y los datos del usuario en localStorage
       localStorage.setItem("token", token);

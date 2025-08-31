@@ -12,7 +12,12 @@ export function DashboardView() {
   (async () => {
     try {
       // BACKEND: GET /courses  -> devuelve array de cursos
-      const courses = await api.get("/courses");
+      const response = await api.get("/courses", { auth: true});
+      console.log("respuesta /courses:", response);
+
+      // aseguramos que sea array
+      const courses = Array.isArray(response) ? response : response.courses || [];
+
       section.innerHTML = `
         <h1>Dashboard</h1>
         <div class="courses-grid">

@@ -11,7 +11,7 @@ export function LevelView(params) {
   async function fetchLevelData() {
     try {
       // BACKEND: GET /levels/:id_level
-      const data = await api.get(`/levels/${nivelId}`);
+      const data = await api.get(`/levels/${nivelId}`, {auth: true});
 
       section.innerHTML = `
         <h1>${data.name}</h1>

@@ -16,11 +16,11 @@ const router = express.Router();
 // Listar todos los niveles → user y admin
 router.get("/", authMiddleware, roleMiddleware(["user", "admin"]), getAllLevels);
 
-// Ver un nivel por id → user y admin
-router.get("/:id_level", authMiddleware, roleMiddleware(["user", "admin"]), getLevelById);
-
 // Ver niveles por curso → user y admin
 router.get("/course/:id_courses", authMiddleware, roleMiddleware(["user", "admin"]), getLevelsByCourse);
+
+// Ver un nivel por id → user y admin
+router.get("/:id_level", authMiddleware, roleMiddleware(["user", "admin"]), getLevelById);
 
 // Crear nivel → solo admin
 router.post("/", authMiddleware, roleMiddleware(["admin"]), createLevel);

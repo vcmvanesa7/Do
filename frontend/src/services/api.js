@@ -51,3 +51,4 @@ export const api = {
   delete: (path, opts) => apiRequest(path, { ...opts, method: "DELETE" }),
 };
 
+export {apiRequest};
