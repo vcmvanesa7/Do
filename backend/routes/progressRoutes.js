@@ -1,11 +1,30 @@
-// routes/progressRoutes.js
-import express from 'express';
-import { startLevel, finishLevel, getProgressByUserCourse } from '../controllers/progressController.js';
+import express from "express";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
+import {
+    startLevel,
+    completeTheory,
+    completeQuiz,
+    checkLevelCompletion,
+    attemptExercise,
+} from "../controllers/progressController.js";
+
 
 const router = express.Router();
+// Proteger todo el router
+router.use(authMiddleware);
 
-router.post('/start', startLevel);        
-router.post('/finish', finishLevel);      
-router.get('/:id_user/:id_courses', getProgressByUserCourse);
+// Inicia un nivel
+router.post("/start", startLevel);
+
+// Completa una teoría
+router.post("/theory/complete", completeTheory);
+
+// Completa un quiz
+router.post("/quiz/complete", completeQuiz);
+
+// Verifica si terminó el nivel
+router.post("/level/check", authMiddleware, checkLevelCompletion);
+
+router.post("/exercise/attempt", authMiddleware, attemptExercise);
 
 export default router;
