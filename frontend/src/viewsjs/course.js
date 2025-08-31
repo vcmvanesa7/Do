@@ -11,7 +11,7 @@ export function CourseView(params) {
   (async () => {
     try {
       // BACKEND: GET /levels/course/:id_course -> devuelve array de levels
-      const levels = await api.get(`/levels/course/${courseId}`);
+      const levels = await api.get(`/levels/course/${courseId}`, {auth: true});
 
       section.innerHTML = `
         <h1>📚 Niveles del curso</h1>

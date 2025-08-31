@@ -252,6 +252,180 @@ export const checkLevelCompletion = async (req, res) => {
   }
 };
 
+// ⬇️ AQUI AGREGAR: getLevelProgress
+export const getLevelProgress = async (req, res) => {
+  try {
+    const id_user = req.user?.id_user;
+    const id_level = Number(req.params.id_level);
+    if (!id_user || !Number.isInteger(id_level)) {
+      return res.status(400).json({ error: "Parámetros inválidos" });
+    }
+
+    // Progress del usuario en el nivel
+    const { data: prog, error: progErr } = await supabase
+      .from("progress")
+      .select("id_progress, status, score, attempts")
+      .eq("id_user", id_user)
+      .eq("id_level", id_level)
+      .maybeSingle();
+    if (progErr) throw progErr;
+
+    // Teorías del nivel
+    const { data: theories, error: thErr } = await supabase
+      .from("theory")
+      .select("id_theory")
+      .eq("id_level", id_level);
+    if (thErr) throw thErr;
+    const theoryIds = (theories || []).map(t => t.id_theory);
+
+    // Teorías completadas por el usuario
+    let theoriesCompleted = 0;
+    if (theoryIds.length) {
+      const { data: thDone, error } = await supabase
+        .from("users_theories")
+        .select("id_theory")
+        .eq("id_user", id_user)
+        .in("id_theory", theoryIds);
+      if (error) throw error;
+      theoriesCompleted = thDone?.length || 0;
+    }
+
+    // Quizzes del nivel
+    const { data: quizzes, error: qErr } = await supabase
+      .from("quiz")
+      .select("id")
+      .eq("id_level", id_level);
+    if (qErr) throw qErr;
+    const quizIds = (quizzes || []).map(q => q.id);
+
+    // Quizzes completados por el usuario
+    let quizzesCompleted = 0;
+    if (quizIds.length) {
+      const { data: qDone, error } = await supabase
+        .from("users_quizzes")
+        .select("id_quiz")
+        .eq("id_user", id_user)
+        .in("id_quiz", quizIds)
+        .eq("status", "completed");
+      if (error) throw error;
+      quizzesCompleted = qDone?.length || 0;
+    }
+
+    // Cálculo sencillo de %: 10% por iniciar, 60% teorías, 30% quizzes, 100% si status=2
+    let percent = 0;
+    if (prog?.status >= 1) percent += 10;
+    if (theoryIds.length) percent += Math.round((theoriesCompleted / theoryIds.length) * 60);
+    if (quizIds.length) percent += Math.round((quizzesCompleted / quizIds.length) * 30);
+    if (prog?.status === 2) percent = 100;
+    if (percent > 100) percent = 100;
+
+    return res.json({
+      id_level,
+      status: prog?.status ?? 0,
+      score: prog?.score ?? 0,
+      attempts: prog?.attempts ?? 0,
+      theoriesCompleted,
+      totalTheories: theoryIds.length,
+      quizzesCompleted,
+      totalQuizzes: quizIds.length,
+      percent,
+    });
+  } catch (err) {
+    console.error("getLevelProgress error:", err);
+    return res.status(500).json({ error: "Error obteniendo progreso del nivel" });
+  }
+};
+// ⬆️ FIN getLevelProgress
+
+
+// ⬇️ AQUI AGREGAR: getCourseProgress
+export const getCourseProgress = async (req, res) => {
+  try {
+    const id_user = req.user?.id_user;
+    const id_courses = Number(req.params.id_courses);
+    if (!id_user || !Number.isInteger(id_courses)) {
+      return res.status(400).json({ error: "Parámetros inválidos" });
+    }
+
+    // Niveles del curso
+    const { data: levels, error: lvErr } = await supabase
+      .from("level")
+      .select("id_level")
+      .eq("id_courses", id_courses);
+    if (lvErr) throw lvErr;
+    const levelIds = (levels || []).map(l => l.id_level);
+
+    const results = [];
+    for (const id_level of levelIds) {
+      // Progress row (si existe)
+      const { data: prog } = await supabase
+        .from("progress")
+        .select("status, score, attempts")
+        .eq("id_user", id_user)
+        .eq("id_level", id_level)
+        .maybeSingle();
+
+      // Teorías
+      const { data: theories } = await supabase
+        .from("theory")
+        .select("id_theory")
+        .eq("id_level", id_level);
+      const theoryIds = (theories || []).map(t => t.id_theory);
+      let theoriesCompleted = 0;
+      if (theoryIds.length) {
+        const { data: thDone } = await supabase
+          .from("users_theories")
+          .select("id_theory")
+          .eq("id_user", id_user)
+          .in("id_theory", theoryIds);
+        theoriesCompleted = thDone?.length || 0;
+      }
+
+      // Quizzes
+      const { data: quizzes } = await supabase
+        .from("quiz")
+        .select("id")
+        .eq("id_level", id_level);
+      const quizIds = (quizzes || []).map(q => q.id);
+      let quizzesCompleted = 0;
+      if (quizIds.length) {
+        const { data: qDone } = await supabase
+          .from("users_quizzes")
+          .select("id_quiz")
+          .eq("id_user", id_user)
+          .in("id_quiz", quizIds)
+          .eq("status", "completed");
+        quizzesCompleted = qDone?.length || 0;
+      }
+
+      let percent = 0;
+      if (prog?.status >= 1) percent += 10;
+      if (theoryIds.length) percent += Math.round((theoriesCompleted / theoryIds.length) * 60);
+      if (quizIds.length) percent += Math.round((quizzesCompleted / quizIds.length) * 30);
+      if (prog?.status === 2) percent = 100;
+      if (percent > 100) percent = 100;
+
+      results.push({
+        id_level,
+        status: prog?.status ?? 0,
+        score: prog?.score ?? 0,
+        attempts: prog?.attempts ?? 0,
+        theoriesCompleted,
+        totalTheories: theoryIds.length,
+        quizzesCompleted,
+        totalQuizzes: quizIds.length,
+        percent,
+      });
+    }
+
+    return res.json({ id_courses, levels: results });
+  } catch (err) {
+    console.error("getCourseProgress error:", err);
+    return res.status(500).json({ error: "Error obteniendo progreso del curso" });
+  }
+};
+// ⬆️ FIN getCourseProgress
+
 /*
 🔹 Cómo funciona
 El usuario intenta el ejercicio.

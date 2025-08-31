@@ -39,20 +39,20 @@ export const getLevelById = async (req, res) => {
   }
 };
 
-// ---------------- GET /levels/course/:id_course ----------------
+// ---------------- GET /levels/course/:id_courses ----------------
 export const getLevelsByCourse = async (req, res) => {
-  const { id_course } = req.params;
+  const { id_courses } = req.params;
 
   try {
     const { data, error } = await supabase
       .from("level")
       .select("id_level, name, description, step, id_courses, finished")
-      .eq("id_courses", id_course)
+      .eq("id_courses", id_courses)
       .order("step", { ascending: true });
 
     if (error) throw error;
     if (!data || data.length === 0) {
-      return res.status(404).json({ error: `No se encontraron niveles para el curso con id ${id_course}` });
+      return res.status(404).json({ error: `No se encontraron niveles para el curso con id ${id_courses}` });
     }
 
     res.status(200).json(data);

@@ -6,7 +6,10 @@ import {
     completeQuiz,
     checkLevelCompletion,
     attemptExercise,
+    getLevelProgress,
+    getCourseProgress
 } from "../controllers/progressController.js";
+import { get } from "http";
 
 
 const router = express.Router();
@@ -27,4 +30,7 @@ router.post("/level/check", authMiddleware, checkLevelCompletion);
 
 router.post("/exercise/attempt", authMiddleware, attemptExercise);
 
+router.get("/level/:id_level", getLevelProgress);
+
+router.get("/course/:id_courses", getCourseProgress);
 export default router;
