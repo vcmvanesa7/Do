@@ -1,214 +1,440 @@
-# Proyecto - Estructura multi-backend conectada a Supabase
-
-Estructura de carpetas preparada para un ejemplo simple con 3 backends (login, niveles, ejercicios) y un frontend estático.
-
-**Importante**: Reemplaza `SUPABASE_URL` y `SUPABASE_KEY` en `supabaseClient.js` por las credenciales de tu proyecto Supabase (usa las keys de servicio en entornos backend, y las anon/public para frontend si corresponde).
-
-Mapping de tablas (ajusta según tu esquema):
-- Backend1 -> `users` (auth / registro)
-- Backend2 -> `levels`
-- Backend3 -> `exercises`
-
-Cómo usar (ejemplo):
-1. Entrar a cada backend y ejecutar `npm install`.
-2. Ejecutar `node index.js` en cada carpeta (o usar nodemon).
-3. Abrir `frontend/index.html` en un navegador (puede ser servido con Live Server).
-
-Puertos:
-- Backend1: 3001 (Auth / Registro)
-- Backend2: 3002 (Niveles)
-- Backend3: 3003 (Ejercicios / Validaciones)
-
-Este paquete contiene código de ejemplo — adáptalo a tus tablas y políticas RLS de Supabase.
-
-
-# SYKER Demo - Backend + Frontend con Supabase
-
-Este proyecto incluye un backend en Node.js/Express y un frontend estático que consumen datos desde Supabase.
-
-## Estructura del proyecto
-
-```
-Do/
-├── backend/
-│   ├── .env
-│   ├── index.js
-│   ├── package.json
-│   ├── config/
-│   │   ├── db.js
-│   │   ├── jwt.js
-│   ├── middlewares/
-│   │   └── authMiddleware
-│   ├── controllers/
-│   │   └── authControllers.js
-│   └── routes/
-│       ├── authRoutes.js
-│       ├── exercisesRouter.js
-│       ├── index.js
-│       └── levelsRoutes.js
-└── frontend/
-    ├── index.html
-    ├── css/
-    ├── img/
-    └── js/
-        └── main.js
-```
-
-## Instalación y configuración
-
-### 1. Clona el repositorio
-
-```sh
-git clone <URL-del-repo>
-cd Do
-```
-
-### 2. Instala las dependencias del backend
-
-```sh
-cd backend
-npm install
-```
-
-### 3. Configura Supabase
-
-Edita el archivo `.env` en la carpeta `backend` y coloca tus credenciales de Supabase:
-
-```
-SUPABASE_URL=<tu-url>
-SUPABASE_KEY=<tu-key>
-```
-
-Estas variables se usan en [`config/db.js`](backend/config/db.js).
-
-### 4. Inicia el servidor backend
-
-```sh
-npm start
-```
-El backend se ejecuta en el puerto **3001** por defecto.
-
-### 5. Abre el frontend
-
-Abre [`frontend/index.html`](frontend/index.html) en tu navegador. Puedes usar la extensión Live Server de VS Code para recarga automática.
-
-## Endpoints disponibles
-
-- **Autenticación:** `http://localhost:3001/auth`
-- **Niveles:** `http://localhost:3001/levels`
-- **Ejercicios:** `http://localhost:3001/exercises`
-
-El frontend consume los endpoints de niveles y ejercicios desde [`main.js`](frontend/js/main.js).
-
-## Personalización
-
-- Adapta las rutas y controladores según tu lógica y tablas en Supabase.
-- Revisa las políticas RLS y los permisos en tu proyecto Supabase.
+# Dö: Technical Documentation
 
 ---
 
-Este proyecto es una base para conectar un backend Express con Supabase y un frontend simple.
+## 1. General Description of the System
 
+### 1.1 Project Summary
 
+**Dö** is an integrated e-learning platform designed to facilitate the teaching and assessment of programming and computer science concepts. The system provides a gamified learning experience, combining theoretical content, quizzes, and hands-on coding exercises. Dö tracks user progress, rewards achievements, and leverages AI to provide hints and personalized feedback.
 
+### 1.2 Problem Statement
 
+Traditional e-learning platforms often lack engagement, real-time feedback, and adaptive support for students. Dö addresses these issues by:
+- Structuring content into progressive levels and courses.
+- Tracking granular user progress.
+- Providing instant feedback on coding exercises.
+- Rewarding users with XP, coins, and achievements.
+- Offering AI-powered hints to support learning.
+- Enabling educators to monitor and analyze student performance.
 
-# 📘 Frontend SPA 
+---
 
-Este proyecto es un **SPA (Single Page Application)** construido con **Vite + Vanilla JS**.  
+## 2. System Architecture
 
-## 🚀 Requisitos previos  
-Antes de comenzar asegúrate de tener instalado en tu PC:  
+### 2.1 Architecture Overview
 
-- [Node.js](https://nodejs.org/) (v18 o superior recomendado)  
-- npm (se instala junto con Node.js)  
+Dö is built as a modern web application with a clear separation of concerns:
 
-Verifica las versiones instaladas:  
-```bash
-node -v
-npm -v
+- **Frontend**: Single Page Application (SPA) built with Vite and JavaScript, responsible for user interaction and rendering.
+- **Backend**: RESTful API developed with Node.js and Express.js, handling business logic, authentication, and integration with external services (e.g., OpenAI, Judge0).
+- **Database**: PostgreSQL managed via Supabase, storing all persistent data (users, courses, progress, etc.).
+
+### 2.2 High-Level Architecture Diagram (Textual)
+
+```
++-------------------+         HTTPS         +-------------------+         SQL         +-------------------+
+|                   | <-------------------> |                   | <----------------> |                   |
+|   Frontend SPA    |                       |   Backend API     |                   |   PostgreSQL DB   |
+| (Vite, JS, HTML)  |                       | (Node.js, Express)|                   |   (Supabase)      |
++-------------------+                       +-------------------+                   +-------------------+
+        |                                         |                                         |
+        |-------------------+                     |                                         |
+                            |                     |                                         |
+                            v                     v                                         v
+                    +-------------------+   +-------------------+   +-------------------+
+                    |   Judge0 API      |   |   OpenAI API      |   |   Azure DevOps    |
+                    +-------------------+   +-------------------+   +-------------------+
 ```
 
 ---
 
-## 📂 Instalación  
+## 3. Technologies Used
 
-1. **Clonar el repositorio**  
-   ```bash
-   git clone https://github.com/vcmvanesa7/Do.git
-   cd Do/frontend
-   ```
+### 3.1 Frontend
 
-2. **Instalar dependencias**  
-   ```bash
-   npm install
-   ```
+- **Vite**: Fast build tool and development server.
+- **JavaScript (ES6+)**: Main programming language.
+- **HTML/CSS**: For UI structure and styling.
 
----
+### 3.2 Backend
 
-## ▶️ Ejecutar en modo desarrollo  
+- **Node.js**: JavaScript runtime environment.
+- **Express.js**: Web framework for building REST APIs.
+- **OpenAI SDK**: For AI-powered hints.
+- **Judge0**: For code execution and evaluation.
+- **bcrypt**: For password hashing.
+- **jsonwebtoken**: For JWT-based authentication.
 
-```bash
-npm run dev
-```
+### 3.3 Database
 
-Esto iniciará un servidor de desarrollo con **Vite**.  
-La terminal mostrará una URL parecida a:  
-```
-  ➜  Local:   http://localhost:5173/
-```
+- **PostgreSQL**: Relational database.
+- **Supabase**: Backend-as-a-Service for PostgreSQL, providing RESTful access and authentication.
 
-Abre esa dirección en tu navegador para ver la app en acción.  
+### 3.4 Project Management
+
+- **Azure DevOps**: For version control, CI/CD, and project tracking.
 
 ---
 
-## 🏗️ Build de producción  
+## 4. Database Model
 
-Para generar la versión optimizada para producción:  
+### 4.1 Relational Model Overview
 
-```bash
-npm run build
+The database is structured to support users, courses, levels, exercises, quizzes, progress tracking, and achievements. Relationships are enforced via foreign keys.
+
+### 4.2 Main Tables
+
+#### 4.2.1 users
+
+| Field         | Type         | Description                  |
+|---------------|--------------|------------------------------|
+| id_user       | UUID (PK)    | Unique user identifier       |
+| username      | VARCHAR      | User's display name          |
+| email         | VARCHAR      | User's email address         |
+| password_hash | VARCHAR      | Hashed password              |
+| coins         | INTEGER      | In-app currency              |
+| xp            | INTEGER      | Experience points            |
+| created_at    | TIMESTAMP    | Registration date            |
+
+#### 4.2.2 courses
+
+| Field         | Type         | Description                  |
+|---------------|--------------|------------------------------|
+| id_courses    | SERIAL (PK)  | Unique course identifier     |
+| name          | VARCHAR      | Course name                  |
+| description   | TEXT         | Course description           |
+
+#### 4.2.3 level
+
+| Field         | Type         | Description                  |
+|---------------|--------------|------------------------------|
+| id_level      | SERIAL (PK)  | Unique level identifier      |
+| id_courses    | INT (FK)     | Reference to courses         |
+| name          | VARCHAR      | Level name                   |
+| description   | TEXT         | Level description            |
+| step          | INT          | Order within the course      |
+| xp_reward     | INT          | XP reward for completion     |
+| difficulty    | VARCHAR      | Difficulty label             |
+
+#### 4.2.4 exercises
+
+| Field         | Type         | Description                  |
+|---------------|--------------|------------------------------|
+| id_exercise   | SERIAL (PK)  | Unique exercise identifier   |
+| id_level      | INT (FK)     | Reference to level           |
+| title         | VARCHAR      | Exercise title               |
+| description   | TEXT         | Exercise description         |
+| tests         | JSONB        | Test cases for evaluation    |
+| xp_reward     | INT          | XP reward for completion     |
+| coins_reward  | INT          | Coin reward for completion   |
+
+#### 4.2.5 progress
+
+| Field         | Type         | Description                  |
+|---------------|--------------|------------------------------|
+| id_user       | UUID (FK)    | Reference to user            |
+| id_level      | INT (FK)     | Reference to level           |
+| startat       | TIMESTAMP    | Start date/time              |
+| endat         | TIMESTAMP    | Completion date/time         |
+| status        | INT          | 0=pending, 1=in_progress, 2=completed, 3=failed |
+| attempts      | INT          | Number of attempts           |
+| score         | INT          | Final score                  |
+
+#### 4.2.6 achievements
+
+| Field           | Type         | Description                  |
+|-----------------|--------------|------------------------------|
+| id_achievement  | SERIAL (PK)  | Unique achievement ID        |
+| id_level        | INT (FK)     | Linked level (optional)      |
+| name            | VARCHAR      | Achievement name             |
+| description     | TEXT         | Achievement description      |
+
+#### 4.2.7 users_theories, users_quizzes, exercise_attempts, users_achievements
+
+- **users_theories**: Tracks which theories a user has completed.
+- **users_quizzes**: Tracks quiz attempts and scores.
+- **exercise_attempts**: Stores each code submission, result, and feedback.
+- **users_achievements**: Tracks unlocked achievements per user.
+
+---
+
+## 5. API REST (Backend)
+
+### 5.1 Authentication
+
+#### POST `/api/auth/register`
+- **Request**: `{ username, email, password }`
+- **Response**: `{ message, user }`
+
+#### POST `/api/auth/login`
+- **Request**: `{ email, password }`
+- **Response**: `{ token, user }`
+
+### 5.2 Courses
+
+#### GET `/api/courses`
+- **Response**: `{ courses: [ ... ] }`
+
+#### GET `/api/courses/:id`
+- **Response**: `{ course, levels: [ ... ] }`
+
+### 5.3 Progress
+
+#### GET `/api/progress/level/:id_level`
+- **Response**:
+  ```json
+  {
+    "level": { ... },
+    "percent": 60,
+    "theories": [ ... ],
+    "quizzes": [ ... ],
+    "exercises": [ ... ]
+  }
+  ```
+
+#### GET `/api/progress/course/:id_courses`
+- **Response**:
+  ```json
+  {
+    "id_courses": 1,
+    "levels": [
+      {
+        "id_level": 1,
+        "status": 2,
+        "score": 100,
+        "attempts": 3,
+        "theoriesCompleted": 5,
+        "totalTheories": 5,
+        "quizzesCompleted": 2,
+        "totalQuizzes": 2,
+        "percent": 100,
+        "unlocked": true
+      }
+    ]
+  }
+  ```
+
+#### POST `/api/progress/level/start`
+- **Request**: `{ id_level }`
+- **Response**: `{ message, data }`
+
+#### POST `/api/progress/theory/complete`
+- **Request**: `{ id_theory }`
+- **Response**: `{ message, data }`
+
+#### POST `/api/progress/quiz/complete`
+- **Request**: `{ id_quiz, score }`
+- **Response**: `{ message, data }`
+
+#### POST `/api/progress/exercise/attempt`
+- **Request**: `{ id_exercise, code, language }`
+- **Response**: `{ passed, hint, xp_earned, coins_earned, ... }`
+
+### 5.4 Rewards
+
+#### POST `/api/rewards/claim`
+- **Request**: `{ type }`
+- **Response**: `{ message, xp, coins }`
+
+### 5.5 Example: Completing a Quiz
+
+**Request:**
+```json
+POST /api/progress/quiz/complete
+{
+  "id_quiz": 12,
+  "score": 85
+}
 ```
-
-Esto creará una carpeta `/dist` lista para desplegar en un hosting.  
-
-Si quieres **probar localmente el build**:  
-```bash
-npm run preview
+**Response:**
+```json
+{
+  "message": "Quiz completed ✅",
+  "data": {
+    "id_user_quiz": 34,
+    "id_user": "uuid",
+    "id_quiz": 12,
+    "score": 85,
+    "completed_at": "2025-08-31T12:00:00Z",
+    "status": "completed"
+  }
+}
 ```
 
 ---
 
-## 📁 Estructura del proyecto  
+## 6. Frontend (SPA)
+
+### 6.1 Folder Structure
 
 ```
 frontend/
-├── assets/                # Recursos estáticos (imágenes, íconos, etc.)
-├── node_modules/          # Dependencias instaladas por npm
-├── public/                # Archivos públicos accesibles directamente (favicons, etc.)
-├── src/                   # Código fuente principal del frontend
-│   ├── viewsjs/           # Vistas principales de la app
-│   │   ├── course.js      # Vista curso individual
-│   │   ├── dashboard.js   # Vista principal con todos los cursos
-│   │   ├── level.js       # Vista de niveles (teoría + ejercicios)
-│   │   ├── login.js       # Vista de login
-│   │   ├── profile.js     # Vista de perfil de usuario
-│   │   ├── public.js      # Vista pública (landing inicial)
-│   │   └── register.js    # Vista de registro
-│   ├── main.js            # Punto de entrada de la aplicación
-│   └── router.js          # Manejo de rutas entre vistas
-├── index.html             # HTML principal
-├── package.json           # Dependencias y scripts del proyecto
-├── package-lock.json      # Bloqueo de versiones de dependencias
-└── README.md              # Documentación del proyecto
-
+├── src/
+│   ├── components/      # Reusable UI components
+│   ├── viewsjs/         # Page views (e.g., quiz.js, level.js)
+│   ├── services/        # API service wrappers (api.js)
+│   ├── assets/          # Images, icons, etc.
+│   ├── App.js           # Main SPA entry point
+│   └── index.html
+├── public/
+├── package.json
+└── vite.config.js
 ```
+
+### 6.2 Navigation Flow
+
+1. **Login/Register**:  
+   - User authenticates via `/login` or `/register`.
+   - JWT token is stored in localStorage/session.
+
+2. **Courses List**:  
+   - User sees available courses.
+   - Selects a course to view its levels.
+
+3. **Levels Overview**:  
+   - User sees all levels in the course, with progress bars and unlock status.
+
+4. **Level Detail**:  
+   - User accesses a level to view theories, quizzes, and exercises.
+   - Progress is tracked and displayed.
+
+5. **Quiz/Exercise Views**:  
+   - User completes quizzes and coding exercises.
+   - Immediate feedback and rewards are shown.
+
+6. **Progress Tracking**:  
+   - User can view overall progress, achievements, and earned rewards.
 
 ---
 
-## 🔑 Notas importantes  
+## 7. Installation and Deployment Guide
 
-- Todo el código de la app está en `src/`.  
-- Los estilos globales se encuentran en `src/assets/css/styles.css`.  
-- Las vistas de la app se encuentran en `src/views/`.  
-- El enrutador `router.js` se encarga de cargar dinámicamente cada vista en el SPA.  
+### 7.1 Requirements
+
+- **Node.js** (v18+ recommended)
+- **npm** or **yarn**
+- **Supabase** account (for PostgreSQL)
+- **Render/Heroku** (for backend deployment, optional)
+
+### 7.2 Local Development
+
+#### 1. Clone the repository
+
+```bash
+git clone https://your-repo-url
+cd Do
+```
+
+#### 2. Install dependencies
+
+```bash
+cd backend
+npm install
+cd ../frontend
+npm install 
+```
+
+#### 3. Configure environment variables
+
+- **Backend**: Create `.env` in `/backend` with:
+  ```
+  SUPABASE_URL=...
+  SUPABASE_KEY=...
+  OPENAI_API_KEY=...
+  JWT_SECRET=...
+  ```
+
+#### 4. Run Supabase locally or connect to your Supabase project
+
+- Set up tables using provided SQL migrations.
+
+#### 5. Start backend and frontend
+
+```bash
+# In /backend
+npm run dev
+
+# In /frontend
+npm run dev
+```
+
+- Access the app at `http://localhost:5173` (default Vite port).
+
+### 7.3 Production Deployment
+
+- **Frontend**: Deploy `/frontend` to Vercel or Netlify.
+- **Backend**: Deploy `/backend` to Render, Heroku, or similar.
+- **Database**: Use Supabase cloud or your own PostgreSQL instance.
+
+---
+
+## 8. Testing Strategy
+
+### 8.1 Methodology
+
+- **Unit Testing**: For backend controllers and utility functions.
+- **Integration Testing**: For API endpoints (using tools like Jest, Supertest).
+- **Manual Testing**: For frontend flows and UI/UX.
+
+### 8.2 Example Test Cases
+
+- **User Registration**
+  - Input: Valid/invalid email, password.
+  - Expected: User created, password hashed, JWT returned.
+
+- **Login**
+  - Input: Correct/incorrect credentials.
+  - Expected: JWT issued or error message.
+
+- **Course Progress**
+  - Input: Complete a theory, quiz, or exercise.
+  - Expected: Progress updated, rewards granted.
+
+- **Saving Progress**
+  - Input: Multiple attempts on exercises.
+  - Expected: Only first successful attempt grants rewards.
+
+---
+
+## 9. Security Measures
+
+### 9.1 Password Handling
+
+- Passwords are hashed using **bcrypt** before storage.
+- Plaintext passwords are never stored or logged.
+
+### 9.2 Session Management
+
+- Authentication is handled via **JWT** (JSON Web Tokens).
+- Tokens are signed with a secret and have expiration times.
+- JWT is sent in the `Authorization` header for protected endpoints.
+
+### 9.3 API Security Best Practices
+
+- All sensitive endpoints require authentication.
+- Input validation and sanitization are enforced.
+- Rate limiting and logging are recommended for production.
+- CORS is configured to restrict origins.
+
+---
+
+## 10. Maintenance and Future Improvements
+
+### 10.1 Scalability Recommendations
+
+- Use connection pooling for PostgreSQL.
+- Implement caching for frequently accessed data.
+- Use background jobs for heavy tasks (e.g., code evaluation).
+- Monitor performance and errors with tools like Sentry.
+
+### 10.2 Possible New Features
+
+- **Student Chat**: Real-time chat for peer support.
+- **Global Ranking**: Leaderboards based on XP and achievements.
+- **AI Integration**: More advanced feedback, adaptive learning paths.
+- **Mobile App**: Native or PWA for mobile devices.
+- **Teacher Dashboard**: Analytics and content management for educators.
+
+---
+
