@@ -26,9 +26,7 @@ export function CourseView(params) {
 
       section.innerHTML = `
         <h1>📚 Niveles del curso</h1>
-        <div class="course-progress">
-          Progreso total: ${progress.percent}%
-        </div>
+        <br>
         <div class="levels-list">
           ${levels
           .map((l, idx) => {

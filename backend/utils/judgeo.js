@@ -1,39 +1,48 @@
-import axios from "axios";
+import { spawn } from "child_process";
 
-const JUDGE0_URL = process.env.JUDGE0_URL;
-const JUDGE0_KEY = process.env.JUDGE0_KEY;
-
-// Mapa de lenguajes soportados por Judge0
-const langMap = {
-    python: 71,
-    javascript: 63,
-    cpp: 54,
-    java: 62
-};
-
-export async function runCode({ language = "python", source, stdin = "" }) {
-    const language_id = langMap[language] || 71;
-
-    const res = await axios.post(
-        `${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`,
-        {
-            language_id,
-            source_code: source,
-            stdin
-        },
-        {
-            headers: {
-                "X-RapidAPI-Key": JUDGE0_KEY,
-                "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-                "Content-Type": "application/json"
-            }
+/**
+ * Ejecuta código en Python con soporte para stdin
+ * @param {string} language - Lenguaje del código (solo se admite 'python')
+ * @param {string} source_code - Código fuente a ejecutar
+ * @param {string} stdin - Entrada estándar opcional
+ * @returns {Promise<{stdout: string, stderr: string, exitCode: number}>}
+ */
+export async function runCode(language, source_code, stdin = "") {
+    return new Promise((resolve) => {
+        if (language !== "python") {
+            return resolve({
+                stdout: "",
+                stderr: "⚠️ Solo se admite Python en esta versión",
+                exitCode: 1,
+            });
         }
-    );
 
-    return {
-        stdout: res.data.stdout,
-        stderr: res.data.stderr,
-        time_ms: res.data.time
-    };
+        // 👇 Aquí ejecutamos python3 con el código recibido
+        const process = spawn("python3", ["-c", source_code]);
+
+        let stdout = "";
+        let stderr = "";
+
+        process.stdout.on("data", (data) => {
+            stdout += data.toString();
+        });
+
+        process.stderr.on("data", (data) => {
+            stderr += data.toString();
+        });
+
+        process.on("close", (code) => {
+            resolve({
+                stdout,
+                stderr,
+                exitCode: code,
+            });
+        });
+
+        // Si el ejercicio espera entrada por stdin
+        if (stdin) {
+            process.stdin.write(stdin);
+            process.stdin.end();
+        }
+    });
 }
-

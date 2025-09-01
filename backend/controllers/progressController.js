@@ -450,53 +450,88 @@ export const getCourseProgress = async (req, res) => {
   }
 };
 
-
 // ⬆️ FIN getCourseProgress
-
 
 export const attemptExercise = async (req, res) => {
   try {
-    const id_user = req.user.id_user;
-    const { id_exercise, code, language = "python" } = req.body;
+    console.log("📥 attemptExercise llamado con body:", req.body);
 
-    // 1) Datos del ejercicio
+    // Usuario detectado
+    const id_user = req.user?.id_user || req.user?.id || req.user?.user_id;
+    console.log("👤 Usuario detectado:", id_user);
+
+    // Extraer datos del body
+    const { id_exercise, code, language = "python" } = req.body;
+    console.log("📌 Datos recibidos:", { id_exercise, language, codeSnippet: code?.slice(0, 50) });
+
+    // Validaciones iniciales
+    if (!id_exercise) {
+      console.warn("⚠️ Falta id_exercise en la request");
+      return res.status(400).json({ error: "Falta id_exercise" });
+    }
+    if (!code || code.trim() === "") {
+      console.warn("⚠️ El código está vacío");
+      return res.status(400).json({ error: "El código no puede estar vacío" });
+    }
+
+    // 1) Buscar ejercicio
+    console.log("🔎 Buscando ejercicio en BD...");
     const { data: exercise, error: exErr } = await supabase
       .from("exercises")
       .select("id_exercise, id_level, title, tests, xp_reward, coins_reward")
       .eq("id_exercise", id_exercise)
       .maybeSingle();
-    if (exErr || !exercise) return res.status(404).json({ error: "Ejercicio no encontrado" });
+
+    if (exErr) {
+      console.error("❌ Error obteniendo ejercicio:", exErr);
+      return res.status(500).json({ error: "Error al obtener ejercicio" });
+    }
+    if (!exercise) {
+      console.warn("⚠️ Ejercicio no encontrado:", id_exercise);
+      return res.status(404).json({ error: "Ejercicio no encontrado" });
+    }
+    console.log("✅ Ejercicio encontrado:", exercise.title);
 
     const tests = Array.isArray(exercise.tests) ? exercise.tests : [];
+    console.log("🧪 Tests cargados:", tests);
 
-    // 2) Ejecutar con Judge0 (uno a uno, corta en el primero que falle)
+    // 2) Ejecutar código con los tests
     let passed = true;
     let finalStdout = "";
     let finalStderr = "";
     let runtime_ms = 0;
 
-    for (const tc of tests) {
-      const run = await runCode({
-        language,
-        source: code,
-        stdin: tc.stdin ?? ""
-      });
+    for (const [i, tc] of tests.entries()) {
+      console.log(`▶️ Ejecutando test #${i + 1}:`, tc);
+      try {
+        const run = await runCode(language, code, tc.stdin ?? "");
 
-      finalStdout = run.stdout || "";
-      finalStderr = run.stderr || "";
-      runtime_ms += Number(run.time_ms || 0);
+        console.log("⏱️ Resultado ejecución:", run);
 
-      // compara stdout exacto
-      const expected = (tc.expected_stdout ?? "").replace(/\r\n/g, "\n");
-      const got = (finalStdout ?? "").replace(/\r\n/g, "\n");
-      if (expected !== got) {
+        finalStdout = run.stdout || "";
+        finalStderr = run.stderr || "";
+        runtime_ms += Number(run.time_ms || 0);
+
+        const expected = (tc.expected_stdout ?? "").replace(/\r\n/g, "\n").trim();
+        const got = (finalStdout ?? "").replace(/\r\n/g, "\n").trim();
+
+        console.log("🔍 Comparando salida:", { expected, got });
+
+        if (expected !== got) {
+          console.warn("❌ Test falló en comparación");
+          passed = false;
+          break;
+        }
+      } catch (e) {
+        console.error("❌ Error ejecutando test:", e);
         passed = false;
+        finalStderr = e.message;
         break;
       }
     }
 
     // 3) Guardar intento
-    const { error: attErr } = await supabase.from("exercise_attempts").insert([{
+    const payload = {
       id_exercise,
       id_user,
       code,
@@ -504,11 +539,21 @@ export const attemptExercise = async (req, res) => {
       stderr: finalStderr,
       passed,
       score: passed ? 100 : 0,
-      runtime_ms
-    }]);
-    if (attErr) return res.status(500).json({ error: "Error al guardar intento" });
+      runtime_ms: Math.round(runtime_ms),
+      created_at: new Date().toISOString()
+    };
+    console.log("💾 Guardando intento:", payload);
 
-    // 4) Últimos 3 intentos para decidir Hint
+    const { error: attErr } = await supabase.from("exercise_attempts").insert([payload]);
+
+    if (attErr) {
+      console.error("❌ Error al guardar intento:", attErr);
+      return res.status(500).json({ error: "Error al guardar intento", details: attErr.message });
+    }
+    console.log("✅ Intento guardado correctamente");
+
+    // 4) Revisar últimos intentos para hints
+    console.log("📊 Consultando intentos recientes...");
     const { data: recentAttempts } = await supabase
       .from("exercise_attempts")
       .select("*")
@@ -517,56 +562,66 @@ export const attemptExercise = async (req, res) => {
       .order("created_at", { ascending: false })
       .limit(3);
 
+    console.log("📜 Últimos intentos:", recentAttempts);
+
     const fails = (recentAttempts || []).filter(a => !a.passed).length;
 
-    // 5) Hint IA (si falló 2+ veces) y tiene coins
     let hint = null;
     let hintCost = 0;
 
     if (!passed && fails >= 2) {
-      // saldo de monedas
+      console.log("💡 Intentando generar hint...");
       const { data: user } = await supabase
         .from("users")
         .select("coins")
         .eq("id_user", id_user)
         .single();
 
-      hintCost = 5; // costo fijo
+      console.log("👤 Usuario con coins:", user);
+
+      hintCost = 5;
       if ((user?.coins ?? 0) >= hintCost) {
-        const response = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: "Eres un coach de programación. Da pistas breves sin la solución completa." },
-            { role: "user", content: `Estoy resolviendo el ejercicio ${id_exercise}. Mi código:\n${code}\nSalida/errores:\n${finalStderr || finalStdout}` }
-          ]
-        });
-        hint = response.choices?.[0]?.message?.content || "Piensa en la lectura de entrada y el formato exacto de salida.";
+        try {
+          const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+              { role: "system", content: "Eres un coach de programación. Da pistas breves sin la solución completa." },
+              { role: "user", content: `Estoy resolviendo el ejercicio ${id_exercise}. Mi código:\n${code}\nSalida/errores:\n${finalStderr || finalStdout}` }
+            ]
+          });
 
-        await supabase.from("users_hints").insert([{
-          id_user,
-          id_exercise,
-          hint_text: hint,
-          coins_spent: hintCost
-        }]);
+          hint = response.choices?.[0]?.message?.content || "Revisa el formato de salida y la entrada.";
+          console.log("✅ Hint generado:", hint);
 
-        // Descontar coins
-        await supabase.rpc("increment_user_rewards", {
-          p_id_user: id_user,
-          p_xp: 0,
-          p_coins: -hintCost
-        });
+          await supabase.from("users_hints").insert([{
+            id_user,
+            id_exercise,
+            hint_text: hint,
+            coins_spent: hintCost
+          }]);
+
+          await supabase.rpc("increment_user_rewards", {
+            p_id_user: id_user,
+            p_xp: 0,
+            p_coins: -hintCost
+          });
+        } catch (e) {
+          console.error("❌ Error generando hint:", e);
+          hint = "No se pudo generar un hint en este momento.";
+        }
       } else {
         hint = "No tienes suficientes coins para recibir un hint.";
+        console.warn("⚠️ Usuario sin coins suficientes");
       }
     }
 
-    // 6) Recompensas sólo la primera vez que aprueba
+    // 5) Recompensas si pasa por primera vez
     let first_time = false;
     let xp_earned = 0;
     let coins_earned = 0;
 
     if (passed) {
-      // ¿ya existía un intento aprobado antes?
+      console.log("🏆 Revisando si es primera vez que pasa...");
       const { data: already } = await supabase
         .from("exercise_attempts")
         .select("id_attempt")
@@ -576,6 +631,7 @@ export const attemptExercise = async (req, res) => {
         .limit(1);
 
       if (!already || already.length === 0) {
+        console.log("🎉 Es la primera vez, asignando recompensas");
         first_time = true;
         xp_earned = exercise?.xp_reward || 50;
         coins_earned = exercise?.coins_reward || 10;
@@ -588,6 +644,8 @@ export const attemptExercise = async (req, res) => {
       }
     }
 
+    // ✅ Respuesta final
+    console.log("📤 Respondiendo al cliente...");
     return res.status(200).json({
       message: passed ? "✅ Pruebas aprobadas" : "❌ Alguna prueba falló",
       passed,
@@ -601,15 +659,13 @@ export const attemptExercise = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Error in attemptExercise:", err);
-    return res.status(500).json({ error: "Error en attemptExercise" });
+    console.error("❌ Error en attemptExercise:", err);
+    return res.status(500).json({ error: "Error en attemptExercise", details: err.message });
   }
 };
 
-//
 
-//
-
+//-------
 export const getExercise = async (req, res) => {
   try {
     const { id_exercise } = req.params;
