@@ -11,7 +11,7 @@ export function generateToken(user) {
       role: user.role, // importante para roleMiddleware
     },
     SECRET,
-    { expiresIn: "1h" }
+    { expiresIn: "2h" }
   );
 }
 

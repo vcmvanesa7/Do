@@ -1,3 +1,4 @@
+// backend/routes/progressRoutes.js
 import express from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import {
@@ -5,32 +6,36 @@ import {
     completeTheory,
     completeQuiz,
     checkLevelCompletion,
-    attemptExercise,
     getLevelProgress,
-    getCourseProgress
+    getCourseProgress,
+    getExercise,
+    attemptExercise,
+    getQuiz,
+    submitQuiz,
 } from "../controllers/progressController.js";
-import { get } from "http";
-
 
 const router = express.Router();
-// Proteger todo el router
+
+// Todas las rutas de progreso requieren auth
 router.use(authMiddleware);
 
-// Inicia un nivel
+// Nivel
 router.post("/start", startLevel);
+router.post("/level/check", checkLevelCompletion);
+router.get("/level/:id_level", getLevelProgress);
+router.get("/course/:id_courses", getCourseProgress);
 
-// Completa una teoría
+// Teoría
 router.post("/theory/complete", completeTheory);
 
-// Completa un quiz
+// Quiz
+router.get("/quiz/:id_quiz", getQuiz);
+router.post("/quiz/:id_quiz/submit", submitQuiz);
+// (opcional, deja por compatibilidad)
 router.post("/quiz/complete", completeQuiz);
 
-// Verifica si terminó el nivel
-router.post("/level/check", authMiddleware, checkLevelCompletion);
+// Ejercicios
+router.get("/exercise/:id_exercise", getExercise);
+router.post("/exercise/attempt", attemptExercise);
 
-router.post("/exercise/attempt", authMiddleware, attemptExercise);
-
-router.get("/level/:id_level", getLevelProgress);
-
-router.get("/course/:id_courses", getCourseProgress);
 export default router;

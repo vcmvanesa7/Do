@@ -1,4 +1,3 @@
-
 /*RESET BÁSICO*/
 * {
   margin: 0;
@@ -324,7 +323,7 @@ li {
 
 .avatar-item {
   background: transparent;
-  border: 2px solid rgba(255,255,255,0.15);
+  border: 2px solid rgba(255, 255, 255, 0.15);
   border-radius: 16px;
   padding: 8px;
   cursor: pointer;
@@ -356,6 +355,7 @@ li {
   justify-content: center;
   margin: .5rem 0 1rem;
 }
+
 .sidebar-avatar {
   width: 64px;
   height: 64px;
@@ -371,35 +371,39 @@ li {
   height: 120px;
   border-radius: 50%;
   border: 3px dashed #4fd1ff;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 /* ==== Modal ==== */
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
+
 .modal.hidden {
   display: none;
 }
+
 .modal-content {
   background: #0c0f1f;
   padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 0 20px rgba(79,209,255,0.4);
+  box-shadow: 0 0 20px rgba(79, 209, 255, 0.4);
   max-width: 600px;
   width: 90%;
   position: relative;
 }
+
 .modal h2 {
   margin-top: 0;
   margin-bottom: 1rem;
 }
+
 .modal-close {
   position: absolute;
   top: .5rem;
@@ -410,8 +414,30 @@ li {
 }
 
 .container_Gologin {
-display: flex;
-flex-direction: row;
-align-content: center;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
 }
 
+.level-card.done {
+  border: 2px solid green;
+  background: #e8ffe8;
+}
+
+.level-card.pending {
+  border: 2px solid orange;
+  background: #fff7e6;
+}
+
+.course-progress {
+  margin: 1em 0;
+  font-weight: bold;
+}
+
+.done {
+  color: green;
+}
+
+.pending {
+  color: gray;
+}

@@ -7,7 +7,9 @@ import { CourseView } from "./viewsjs/course.js";
 import { LevelView } from "./viewsjs/level.js";
 import { ProfileView } from "./viewsjs/profile.js";
 import { Navbar } from "./components/navbar.js";
-import { DashboardAdminView} from "./viewsjs/dashboardAdmin.js";
+import { DashboardAdminView } from "./viewsjs/dashboardAdmin.js";
+import { ExerciseView } from "./viewsjs/exercise.js";
+import { QuizView } from "./viewsjs/quiz.js";
 
 // Funciones helper para autenticación y roles
 function isAuthenticated() {
@@ -29,6 +31,8 @@ const routes = {
   "/level/:id": { view: LevelView, auth: true },
   "/profile": { view: ProfileView, auth: true },
   "/dashboardAdmin": { view: DashboardAdminView, auth: true, role: "admin" }, // Solo admins
+  "/exercise/:id": { view: ExerciseView, auth: true },
+  "/quiz/:id": { view: QuizView, auth: true },
 };
 
 // Renderiza la vista según la ruta
