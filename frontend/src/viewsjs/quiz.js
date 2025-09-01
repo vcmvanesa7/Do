@@ -6,7 +6,7 @@ export function QuizView(params) {
     const section = document.createElement("section");
     section.innerHTML = `
     <div class="p-6">
-      <button id="backBtn" class="mb-4 text-blue-500">← Volver al nivel</button>
+      <a data-link class="btn" href="/level/1">Back Level</a>
       <h2 class="text-2xl font-bold mb-4">📝 Quiz</h2>
       <div id="quizContainer">Cargando quiz...</div>
     </div>
@@ -16,8 +16,8 @@ export function QuizView(params) {
 
     (async () => {
         try {
-            // GET /quizzes/:id  (o /progress/quiz/:id si lo tienes así en el backend)
-            const { data: quiz } = await api.get(`/quizzes/${params.id}`, { auth: true });
+            // CORREGIDO: debe ir a /progress/quiz/:id
+            const { data: quiz } = await api.get(`/progress/quiz/ ${params.id}`, { auth: true });
             if (!quiz) {
                 container.textContent = "❌ Quiz no encontrado.";
                 return;
@@ -35,7 +35,7 @@ export function QuizView(params) {
                                 .map(
                                     (opt, j) => `
                         <label class="block">
-                          <input type="radio" name="q${i}" value="${opt}" class="mr-2"/>
+                          <input type="radio" name="q${i}" value="${j}" class="mr-2"/>
                           ${opt}
                         </label>
                       `
@@ -57,7 +57,8 @@ export function QuizView(params) {
                 });
 
                 try {
-                    const res = await api.post(`/progress/quiz/${params.id}/submit`, { answers });
+                    // CORREGIDO: debe ir a /progress/quiz/:id/submit
+                    const res = await api.post(`/progress/quiz/${params.id}/submit`, { answers }, { auth: true });
                     section.querySelector("#result").textContent = JSON.stringify(res.data, null, 2);
                 } catch (err) {
                     section.querySelector("#result").textContent =

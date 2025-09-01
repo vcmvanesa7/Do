@@ -697,7 +697,7 @@ export const getExercise = async (req, res) => {
   }
 };
 
-// En src/controllers/progressController.js (agregar hacia el final del archivo)
+// En src/controllers/progressController.js
 
 export const getQuiz = async (req, res) => {
   try {
@@ -720,9 +720,9 @@ export const getQuiz = async (req, res) => {
     // WARNING: por ahora incluimos el campo 'answer' para scoring en frontend (DEV only).
     const { data: questions, error: qErr } = await supabase
       .from("questions")
-      .select("id, question, options, answer")
+      .select("id_question, question, options, answer, type, solution")
       .eq("id_quiz", id_quiz)
-      .order("id", { ascending: true });
+      .order("id_question", { ascending: true });
 
     if (qErr) throw qErr;
 
@@ -742,7 +742,14 @@ export const getQuiz = async (req, res) => {
         id_level: quiz.id_level,
         id_theory: quiz.id_theory
       },
-      questions: questions || [],
+      questions: (questions || []).map(row => ({
+        id: row.id_question,        // 👈 corregido
+        question: row.question,
+        options: row.options,
+        answer: row.answer,         // ⚠️ dev only, cuidado en prod
+        type: row.type,
+        solution: row.solution
+      })),
       userQuiz: userQuiz || null
     });
   } catch (err) {

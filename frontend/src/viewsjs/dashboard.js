@@ -12,7 +12,7 @@ export function DashboardView() {
   (async () => {
     try {
       // BACKEND: GET /courses  -> devuelve array de cursos
-      const response = await api.get("/courses", { auth: true});
+      const response = await api.get("/courses", { auth: true });
       console.log("respuesta /courses:", response);
 
       // aseguramos que sea array
@@ -41,3 +41,4 @@ export function DashboardView() {
 
   return section;
 }
+
