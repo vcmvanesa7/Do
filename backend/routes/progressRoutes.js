@@ -38,4 +38,5 @@ router.post("/quiz/complete", completeQuiz);
 router.get("/exercise/:id_exercise", getExercise);
 router.post("/exercise/attempt", attemptExercise);
 
+
 export default router;

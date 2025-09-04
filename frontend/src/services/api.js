@@ -39,8 +39,6 @@ async function apiRequest(path, { method = "GET", body, auth = false, headers = 
   }
 }
 
-
-
 // Funciones específicas para cada método HTTP con el backend ejemplo de uso: api.get('/users')
 //Esto son como atajos para que no tengas que repetir method: "POST" cada vez.
 export const api = {
@@ -50,4 +48,9 @@ export const api = {
   delete: (path, opts) => apiRequest(path, { ...opts, method: "DELETE" }),
 };
 
-export {apiRequest};
+// 🔹 Nueva función helper para obtener perfil de usuario (XP, coins, rewards, etc.)
+export async function getUserProfile() {
+  return api.get("/api/user/profile", { auth: true });
+}
+
+export { apiRequest };

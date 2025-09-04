@@ -90,7 +90,7 @@ export const getQuizById = async (req, res) => {
     const { data, error } = await supabase
       .from("quiz")
       .select("id, name, type, id_theory, questions(*)")
-      .eq("id", id_quiz)
+      .eq("id", id)
       .limit(100, { foreignTable: 'questions' })
       .single();
 
@@ -123,7 +123,7 @@ export const updateQuiz = async (req, res) => {
     const { data, error } = await supabase
       .from("quiz")
       .update({ name, type })
-      .eq("id", id_quiz)
+      .eq("id", id)
       .select()
       .single();
 
@@ -160,7 +160,7 @@ export const patchQuiz = async (req, res) => {
     const { data, error } = await supabase
       .from("quiz")
       .update(payload)
-      .eq("id", id_quiz)
+      .eq("id", id)
       .select()
       .single();
 
@@ -187,7 +187,7 @@ export const deleteQuiz = async (req, res) => {
     const { data, error } = await supabase
       .from("quiz")
       .delete()
-      .eq("id", id_quiz)
+      .eq("id", id)
       .select()
       .single();
 

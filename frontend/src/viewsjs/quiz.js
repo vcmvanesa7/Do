@@ -1,8 +1,15 @@
-export async function QuizView(params){
+// src/viewsjs/quiz.js
+import { navigate } from "../router.js"; // 🔹 añadido para navegar al nivel
+
+export async function QuizView(params) {
   const container = document.createElement("div");
   container.classList.add("quiz-view");
 
   const quizId = params?.id;
+  // 🔹 capturamos el id_level desde la URL (query param)
+  const urlParams = new URLSearchParams(window.location.search);
+  const idLevel = urlParams.get("level");
+
   let currentQuestionIndex = 0;
   let score = 0;
   let quizData = null;
@@ -12,25 +19,15 @@ export async function QuizView(params){
 
   try {
     const res = await fetch(`http://localhost:3001/api/quiz/${quizId}`);
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Error HTTP: ${res.status} - ${text}`);
-    }
-
+    if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
     const data = await res.json();
-    console.log(data);
-
     quizData = data;
     renderQuestion();
-
   } catch (err) {
-    console.error("Error al cargar el quiz", err);
     container.innerHTML = `<p>Error al cargar el quiz: ${err.message}</p>`;
   }
 
   function renderQuestion() {
-    console.log(quizData)
     const quiz = quizData.quiz;
     const question = quizData.quiz.questions[currentQuestionIndex];
 
@@ -53,18 +50,17 @@ export async function QuizView(params){
       btn.addEventListener("click", () => {
         const selected = parseInt(btn.dataset.index);
 
-        userAnswers.push({
-          id_question: question.id, // ID de la pregunta
-          selectedIndex: selected   // Índice seleccionado por el usuario
-        });
+        userAnswers.push({ id_question: question.id, selectedIndex: selected });
 
+        // 🔹 feedback inmediato
         if (selected === question.answer) {
           score++;
+          alert("✅ ¡Respuesta correcta!");
+        } else {
+          alert("❌ Respuesta incorrecta.");
         }
 
         if ((currentQuestionIndex + 1) < quizData.quiz.questions.length) {
-          console.log(quizData.quiz.questions.length)
-          console.log(currentQuestionIndex)
           currentQuestionIndex++;
           renderQuestion();
         } else {
@@ -80,12 +76,12 @@ export async function QuizView(params){
         <h2>Resultados</h2>
         <p>Completaste el quiz <strong>${quiz.name}</strong>.</p>
         <p>Tu puntuación: <strong>${score} / ${quiz.questions.length}</strong></p>
-        <button id="volver-dashboard">Volver al dashboard</button>
+        <button id="volver-level">Volver al nivel</button>
       </section>
     `;
-    const goBackBtn = container.querySelector("#volver-dashboard");
 
-    submitQuizResults(quiz, goBackBtn)
+    const goBackBtn = container.querySelector("#volver-level");
+    submitQuizResults(quiz, goBackBtn);
   }
 
   async function submitQuizResults(quiz, goBackBtn) {
@@ -96,18 +92,12 @@ export async function QuizView(params){
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         },
-        body: JSON.stringify({
-          answers: userAnswers
-        })
+        body: JSON.stringify({ answers: userAnswers })
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error ${response.status}: ${errorText}`);
-      }
+      if (!response.ok) throw new Error(`Error ${response.status}`);
 
       const result = await response.json();
-      console.log("Resultados enviados", result);
 
       container.innerHTML = `
         <section>
@@ -116,41 +106,34 @@ export async function QuizView(params){
           <div class="results-summary">
             <p>Respuestas correctas: <strong>${result.correct} / ${result.total}</strong></p>
             <p>Puntuación: <strong>${result.percent}%</strong></p>
-            ${result.percent >= 70 ?
-              '<p class="success">¡Excelente trabajo! 🎉</p>' :
-              '<p class="retry">Puedes intentarlo de nuevo para mejorar tu puntuación.</p>'
-            }
+            ${result.percent >= 70
+          ? '<p class="success">¡Excelente trabajo! 🎉</p>'
+          : '<p class="retry">Puedes intentarlo de nuevo para mejorar tu puntuación.</p>'}
           </div>
-          <button id="volver-dashboard">Volver al dashboard</button>
+          <button id="volver-level">Volver al nivel</button>
         </section>
       `;
 
-      container.querySelector("#volver-dashboard").addEventListener("click", () => {
-        import("../router.js").then(({ navigate }) => {
-          navigate("/dashboard");
-        });
+      // 🔹 volver al nivel correcto
+      container.querySelector("#volver-level").addEventListener("click", () => {
+        navigate(`/level/${idLevel}`);
       });
 
-     } catch (err) {
-        console.error("Error al enviar resultados:", err);
+    } catch (err) {
+      container.innerHTML = `
+        <section>
+          <h2>Quiz Completado</h2>
+          <p>Tu puntuación local: <strong>${score}</strong></p>
+          <p class="error">⚠️ Error al guardar resultados: ${err.message}</p>
+          <button id="volver-level">Volver al nivel</button>
+        </section>
+      `;
 
-        // Mostrar error pero permitir volver al dashboard
-        container.innerHTML = `
-          <section>
-            <h2>Quiz Completado</h2>
-            <p>Tu puntuación local: <strong>${score} / ${quiz.questions.length}</strong></p>
-            <p class="error">⚠️ Error al guardar resultados: ${err.message}</p>
-            <button id="volver-dashboard">Volver al dashboard</button>
-          </section>
-        `;
-
-        container.querySelector("#volver-dashboard").addEventListener("click", () => {
-          import("../router.js").then(({ navigate }) => {
-            navigate("/dashboard");
-          });
-        })
-      }
+      container.querySelector("#volver-level").addEventListener("click", () => {
+        navigate(`/level/${idLevel}`);
+      });
+    }
   }
 
   return container;
-};
+}

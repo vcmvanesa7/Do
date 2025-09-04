@@ -13,82 +13,96 @@ export function LevelView(params) {
     theories: [],
     quizzes: [],
     exercises: [],
-    percent: 0
+    percent: 0,
+    sequence: [],
+    currentIndex: 0
   };
 
   async function load() {
     try {
       const data = await api.get(`/progress/level/${nivelId}`, { auth: true });
-      state = { ...state, ...data };
 
-      console.log(data)
+      const sequence = [
+        ...data.theories.map(t => ({ type: "theory", item: t })),
+        ...data.quizzes.map(q => ({ type: "quiz", item: q })),
+        ...data.exercises.map(e => ({ type: "exercise", item: e }))
+      ];
+
+      // 🔹 Buscar primer paso incompleto para reanudar
+      let startIndex = sequence.findIndex(step => !step.item.completed);
+      if (startIndex === -1) startIndex = sequence.length;
+
+      state = { ...state, ...data, sequence, currentIndex: startIndex };
+
       render();
     } catch (err) {
       section.innerHTML = `<p>❌ Error cargando nivel: ${err.message}</p>`;
     }
   }
 
-  function nextPending() {
-    // Orden deseado: Teoría → Quiz → Ejercicio
-    const t = state.theories.find(x => !x.completed);
-    if (t) return { type: "theory", item: t };
-    const q = state.quizzes.find(x => !x.completed);
-    if (q) return { type: "quiz", item: q };
-    const e = state.exercises.find(x => !x.completed);
-    if (e) return { type: "exercise", item: e };
-    return null;
-  }
-
   function render() {
+    const current = state.sequence[state.currentIndex];
+    if (!current) {
+      section.innerHTML = `
+        <h2>${state.level?.name || "Nivel"}</h2>
+        <p><strong>Progreso:</strong> 100%</p>
+        <div class="progress-bar"><div class="progress" style="width:100%"></div></div>
+        <p>✅ ¡Nivel completado!</p>
+        <button class="btn" id="finishBtn">Finalizar nivel</button>
+      `;
+
+      section.querySelector("#finishBtn").addEventListener("click", async () => {
+        const resp = await api.post("/progress/level/check", { id_level: nivelId }, { auth: true });
+        alert(resp.message || "Nivel validado");
+
+        if (state.level.id_next_level) {
+          navigate(`/level/${state.level.id_next_level}`);
+        } else if (state.level.id_courses) {
+          navigate(`/course/${state.level.id_courses}`);
+        } else {
+          navigate('/dashboard');
+        }
+      });
+
+      return;
+    }
+
+    // 🔹 Progreso dinámico
+    const percent = Math.round((state.currentIndex / state.sequence.length) * 100);
+
     section.innerHTML = `
       <h2>${state.level?.name || "Nivel"}</h2>
       <p>${state.level?.description || ""}</p>
-      <p><strong>Progreso:</strong> ${state.percent}%</p>
+      <p><strong>Progreso:</strong> ${percent}%</p>
+      <div class="progress-bar"><div class="progress" style="width:${percent}%"></div></div>
 
-      <hr/>
-      <h3>Teoría</h3>
-      <ul>
-        ${state.theories.map(t => `
-          <li style="margin-bottom: 12px;">
-            <strong>${t.name}</strong>
-            ${t.completed ? " ✅" : ""}
-            <div style="margin-top:6px;">
-              <button class="btn" data-action="viewTheory" data-id="${t.id_theory}">Ver</button>
-              ${t.completed ? "" : `<button class="btn" data-action="completeTheory" data-id="${t.id_theory}">Marcar como completada</button>`}
-            </div>
-          </li>
-        `).join("")}
-      </ul>
+      <div class="step-card">
+        ${current.type === "theory" ? `
+          <h3>📖 Teoría</h3>
+          <p><strong>${current.item.name}</strong></p>
+          <button class="btn" id="viewTheory">Ver contenido</button>
+          ${current.item.completed ? "✅" : `<button class="btn" id="completeTheory">Marcar como completada</button>`}
+        ` : ""}
 
-      <h3>Quizzes</h3>
-      <ul>
-        ${state.quizzes.map(q => `
-          <li style="margin-bottom: 12px;">
-            <strong>${q.name}</strong> (${q.type}) ${q.completed ? " ✅" : ""}
-            <div style="margin-top:6px;">
-              <button class="btn" data-action="openQuiz" data-id="${q.id}">Ir al quiz</button>
-            </div>
-          </li>
-        `).join("")}
-      </ul>
+        ${current.type === "quiz" ? `
+          <h3>📝 Quiz</h3>
+          <p><strong>${current.item.name}</strong> (${current.item.type})</p>
+          <!-- 🔹 pasamos el id_level en la ruta -->
+          <button class="btn" id="openQuiz">Ir al quiz</button>
+        ` : ""}
 
-      <h3>Ejercicios</h3>
-      <ul>
-        ${state.exercises.map(e => `
-          <li style="margin-bottom: 12px;">
-            <strong>${e.title}</strong> — ${e.difficulty} ${e.completed ? " ✅" : ""}
-            <div style="margin-top:6px;">
-              <button class="btn" data-action="openExercise" data-id="${e.id_exercise}">Resolver ejercicio</button>
-            </div>
-          </li>
-        `).join("")}
-      </ul>
+        ${current.type === "exercise" ? `
+          <h3>💻 Ejercicio</h3>
+          <p><strong>${current.item.title}</strong> — ${current.item.difficulty}</p>
+          <button class="btn" id="openExercise">Resolver ejercicio</button>
+        ` : ""}
+      </div>
 
       <div style="margin-top:16px;">
         <button class="btn" id="nextBtn">Siguiente ▶</button>
       </div>
 
-      <!-- Modal simple para teoría -->
+      <!-- Modal teoría -->
       <dialog id="theoryModal">
         <article>
           <header>
@@ -100,66 +114,39 @@ export function LevelView(params) {
       </dialog>
     `;
 
-    // Botones teoría
-    section.querySelectorAll("[data-action='viewTheory']").forEach(btn => {
-      btn.addEventListener("click", () => openTheory(Number(btn.dataset.id)));
-    });
-
-    section.querySelectorAll("[data-action='completeTheory']").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        const id_theory = Number(btn.dataset.id);
-        await api.post("/progress/theory/complete", { id_level: nivelId, id_theory }, { auth: true });
-        await load();
-      });
-    });
-
-    // Quiz/Ejercicio
-    section.querySelectorAll("[data-action='openQuiz']").forEach(btn => {
-      btn.addEventListener("click", () => navigate(`/quiz/${Number(btn.dataset.id)}`));
-    });
-    section.querySelectorAll("[data-action='openExercise']").forEach(btn => {
-      btn.addEventListener("click", () => navigate(`/exercise/${Number(btn.dataset.id)}`));
-    });
-
-    // Siguiente
-    section.querySelector("#nextBtn").addEventListener("click", async () => {
-      const nxt = nextPending();
-      if (!nxt) {
-        // nada pendiente → validar fin de nivel
-        const resp = await api.post("/progress/level/check", { id_level: nivelId }, { auth: true });
-        alert(resp.message || "Nivel validado");
-
-        console.log(state)
-
-        if (state.level.id_next_level) {
-          navigate(`/level/${state.level.id_next_level}`);
-        } else if (state.level.id_courses) {
-          navigate(`/course/${state.level.id_courses}`);
-        } else {
-          navigate('/dashboard');
-        }
-
-        return;
+    // Eventos
+    if (current.type === "theory") {
+      section.querySelector("#viewTheory").addEventListener("click", () => openTheory(current.item.id_theory));
+      const btn = section.querySelector("#completeTheory");
+      if (btn) {
+        btn.addEventListener("click", async () => {
+          await api.post("/progress/theory/complete", { id_level: nivelId, id_theory: current.item.id_theory }, { auth: true });
+          current.item.completed = true;
+          render();
+        });
       }
-      if (nxt.type === "theory") {
-        openTheory(nxt.item.id_theory);
-      } else if (nxt.type === "quiz") {
-        navigate(`/quiz/${nxt.item.id}`);
-      } else {
-        navigate(`/exercise/${nxt.item.id_exercise}`);
-      }
+    }
+    if (current.type === "quiz") {
+      // 🔹 pasamos id_level en query param
+      section.querySelector("#openQuiz").addEventListener("click", () => navigate(`/quiz/${current.item.id}?level=${nivelId}`));
+    }
+    if (current.type === "exercise") {
+      section.querySelector("#openExercise").addEventListener("click", () => navigate(`/exercise/${current.item.id_exercise}`));
+    }
+
+    section.querySelector("#nextBtn").addEventListener("click", () => {
+      state.currentIndex++;
+      render();
     });
   }
 
   async function openTheory(id_theory) {
-    // Los datos ya vienen en state.theories
     const t = state.theories.find(x => x.id_theory === id_theory);
     if (!t) return;
     const dlg = section.querySelector("#theoryModal");
     section.querySelector("#theoryTitle").textContent = t.name;
     section.querySelector("#theoryBody").textContent = t.content;
     dlg.showModal();
-
     section.querySelector("#closeTheory").onclick = () => dlg.close();
   }
 

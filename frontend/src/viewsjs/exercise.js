@@ -25,7 +25,7 @@ export function ExerciseView(params) {
             container.innerHTML = `
         <h3 class="text-xl font-semibold mb-2">${exercise.title}</h3>
         <p class="mb-2 text-gray-700">${exercise.description || ""}</p>
-        <textarea id="codeInput" placeholder="Write your answer" class="w-full border p-2 rounded mb-4" rows="10" placeholder="Escribe tu código aquí..."></textarea>
+        <textarea id="codeInput" class="w-full border p-2 rounded mb-4" rows="10" placeholder="Escribe tu código aquí..."></textarea>
         <button id="submitBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Enviar intento</button>
         <pre id="result" class="mt-4 bg-gray-100 p-2 rounded"></pre>
       `;
@@ -44,15 +44,16 @@ export function ExerciseView(params) {
                         `❌ Error: ${err.response?.data?.error || err.message}`;
                 }
             });
+
+            // 🔹 usar id_level del ejercicio para volver correctamente
+            section.querySelector("#backBtn").addEventListener("click", () => {
+                navigate(`/level/${exercise.id_level}`);
+            });
+
         } catch (err) {
             container.textContent = `❌ Error cargando ejercicio: ${err.message}`;
         }
     })();
-
-    section.querySelector("#backBtn").addEventListener("click", () => {
-
-        navigate(`/level/${params.id}`);
-    });
 
     return section;
 }

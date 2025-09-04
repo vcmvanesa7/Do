@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import progressRoutes from "./routes/progressRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 // Importar routers centralizados
 import {
@@ -45,6 +47,7 @@ app.use('/theory', theoryRouter);        // Contenido teórico
 app.use('/quiz', quizRouter);            // Quiz de evaluación
 app.use('/api/quiz', quizRouter);            // Quiz de evaluación
 app.use('/questions', questionRouter);   // Preguntas
+app.use("/api/user", userRoutes);         // Perfil de usuario
 
 // ====================
 //  SERVIDOR

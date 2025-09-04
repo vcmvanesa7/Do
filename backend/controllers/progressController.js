@@ -163,7 +163,7 @@ export const checkLevelCompletion = async (req, res) => {
 
     const { data: quizzes } = await supabase
       .from("quiz")
-      .select("id_quiz")
+      .select("id")
       .eq("id_level", id_level);
 
     const { data: exercises } = await supabase
@@ -567,17 +567,26 @@ export const getCourseProgress = async (req, res) => {
       // Calcular porcentaje
       let percent = 0;
 
-      console.log('PROG',prog);
+      console.log('PROG', prog);
       console.log('THEORY_IDS', theoryIds);
       console.log('QUIZ_IDS', quizIds);
 
       if (prog?.status >= 1) percent += 10;
       if (theoryIds.length) percent += Math.round((theoriesCompleted / theoryIds.length) * 60);
       if (quizIds.length) percent += Math.round((quizzesCompleted / quizIds.length) * 30);
-      if (prog?.status === 2) percent = 100;
+
+      // ✅ Solo marca 100% si realmente están completos teoría y quiz
+      const theoriesDone = theoryIds.length ? (theoriesCompleted === theoryIds.length) : true;
+      const quizzesDone = quizIds.length ? (quizzesCompleted === quizIds.length) : true;
+
+      if (prog?.status === 2 && theoriesDone && quizzesDone) {
+        percent = 100;
+      }
+
       if (percent > 100) percent = 100;
 
-      console.log(percent)
+      console.log(percent);
+
 
       // Lógica de desbloqueo (nuevo campo, sin romper nada)
       const unlocked = lastCompleted;
@@ -865,7 +874,7 @@ export const getQuiz = async (req, res) => {
     const { data: quiz, error: quizErr } = await supabase
       .from("quiz")
       .select("id, name, type, id_level, id_theory")
-      .eq("id", id_quiz)
+      .eq("id", id)
       .maybeSingle();
     if (quizErr) throw quizErr;
     if (!quiz) return res.status(404).json({ error: "Quiz no encontrado" });
@@ -936,7 +945,7 @@ export const submitQuiz = async (req, res) => {
     // 2) Comparar
     let correct = 0;
     questions.forEach(q => {
-      const userAnswer = answers.find(a => a.id_question === q.id);
+      const userAnswer = answers.find(a => a.id_question === q.id_question);
       if (userAnswer && userAnswer.selectedIndex === q.answer) correct++;
     });
 
