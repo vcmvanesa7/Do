@@ -3,7 +3,6 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-node_modules
 # Entornos
 .env
 .env.local
@@ -25,4 +24,5 @@ Thumbs.db
 /build
 
 # Otros
+*.sqlite
 *.sqlite
