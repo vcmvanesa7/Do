@@ -1,6 +1,11 @@
 // src/viewsjs/exercise.js
+<<<<<<< HEAD
 import { api } from "../services/api.js";
 import { navigate } from "../router.js";
+=======
+import { navigate } from "../router.js";
+import { api } from "../services/api.js";
+>>>>>>> Juanda
 
 export function ExerciseView(params) {
     const section = document.createElement("section");
@@ -50,7 +55,11 @@ export function ExerciseView(params) {
     })();
 
     section.querySelector("#backBtn").addEventListener("click", () => {
+<<<<<<< HEAD
         navigate(`/level/${params.levelId}`);
+=======
+        navigate(`/level/${params.id}`);
+>>>>>>> Juanda
     });
 
     return section;

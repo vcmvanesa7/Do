@@ -42,7 +42,11 @@ app.use('/exercises', exercisesRouter);  // Ejercicios prácticos
 app.use('/courses', coursesRouter);      // Cursos
 app.use('/progress', progressRouter);    // Progreso del usuario (start, theory, quiz, check)
 app.use('/theory', theoryRouter);        // Contenido teórico
+<<<<<<< HEAD
 app.use('/quiz', quizRouter);            // Quiz de evaluación
+=======
+app.use('/api/quiz', quizRouter);            // Quiz de evaluación
+>>>>>>> Juanda
 app.use('/questions', questionRouter);   // Preguntas
 
 // ====================
