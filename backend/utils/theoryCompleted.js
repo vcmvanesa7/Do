@@ -1,3 +1,4 @@
+
 async function getCompletedLevelIds(id_user) {
     const { data, error } = await supabase
       .from("user_levels")

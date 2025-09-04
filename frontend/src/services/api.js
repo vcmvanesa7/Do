@@ -44,10 +44,10 @@ async function apiRequest(path, { method = "GET", body, auth = false, headers = 
 // Funciones específicas para cada método HTTP con el backend ejemplo de uso: api.get('/users')
 //Esto son como atajos para que no tengas que repetir method: "POST" cada vez.
 export const api = {
-
   get: (path, opts) => apiRequest(path, { ...opts, method: "GET" }),
   post: (path, body, opts) => apiRequest(path, { ...opts, method: "POST", body }),
   put: (path, body, opts) => apiRequest(path, { ...opts, method: "PUT", body }),
   delete: (path, opts) => apiRequest(path, { ...opts, method: "DELETE" }),
 };
 
+export {apiRequest};

@@ -1,4 +1,3 @@
-// controllers/quizController.js
 import supabase from "../config/db.js";
 import { sanitizeString } from "../utils/sanitize.js";
 
@@ -72,6 +71,36 @@ export const getQuizzes = async (req, res) => {
     return res.status(200).json({ quizzes: data });
   } catch (err) {
     console.error("getQuizzes catch:", err);
+    return res.status(500).json({ error: "Error interno" });
+  }
+};
+
+/**
+ * GET /quiz/:id_quiz
+ * Obtener quiz por ID
+ */
+export const getQuizById = async (req, res) => {
+  try {
+    console.log('xd')
+    const id_quiz = Number(req.params.id_quiz);
+    if (!Number.isInteger(id_quiz)) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+
+    const { data, error } = await supabase
+      .from("quiz")
+      .select("id, name, type, id_theory, questions(*)")
+      .eq("id", id_quiz)
+      .limit(100, { foreignTable: 'questions' })
+      .single();
+
+    if (error || !data) {
+      return res.status(404).json({ error: "Quiz no encontrado" });
+    }
+
+    return res.status(200).json({ quiz: data });
+  } catch (err) {
+    console.error("getQuizById catch:", err);
     return res.status(500).json({ error: "Error interno" });
   }
 };

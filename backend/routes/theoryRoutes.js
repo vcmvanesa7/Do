@@ -32,3 +32,4 @@ router.patch("/:id_theory", authMiddleware, roleMiddleware(["admin"]), patchTheo
 router.delete("/:id_theory", authMiddleware, roleMiddleware(["admin"]), deleteTheory);
 
 export const theoryRouter = router;
+

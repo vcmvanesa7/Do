@@ -81,19 +81,26 @@ export const updateCourse = async (req, res) => {
 
 // ---------------- DELETE /courses/:id_courses ----------------
 export const deleteCourse = async (req, res) => {
-  const { id_courses } = req.params;
+  const id_courses = Number(req.params.id_courses); // asegurarse que sea número
+  if (isNaN(id_courses)) return res.status(400).json({ error: "ID inválido" });
+
   try {
+    // Eliminar curso
     const { data, error } = await supabase
       .from("courses")
       .delete()
-      .eq("id_courses", id_courses)
-      .select()
-      .single();
+      .eq("id_courses", id_courses);
 
     if (error) throw error;
-    res.status(200).json({ message: "Curso eliminado", course: data });
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: "Curso no encontrado" });
+    }
+
+    res.status(200).json({ message: "Curso eliminado", course: data[0] });
   } catch (error) {
     console.error("deleteCourse error", error);
-    res.status(500).json({ error: "Error al eliminar el curso" });
+    res.status(500).json({ error: "Error al eliminar el curso", details: error?.message });
   }
 };
+
+

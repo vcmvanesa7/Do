@@ -1,6 +1,6 @@
 import express from "express";
 import { check, validationResult } from "express-validator";
-import { Register, Login } from "../controllers/authControllers.js";
+import { Register, Login, loginWithGithub, githubCallback } from "../controllers/authControllers.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { roleMiddleware } from "../middlewares/roleMiddleware.js";
 import supabase from "../config/db.js";
@@ -9,7 +9,7 @@ const router = express.Router();
 
 // ------------------ Rutas públicas ------------------
 
-// Registro de usuario
+// Registro de usuario normal
 router.post(
   "/register",
   [
@@ -23,7 +23,7 @@ router.post(
   Register
 );
 
-// Login de usuario
+// Login normal con email/password
 router.post(
   "/login",
   [
@@ -34,9 +34,17 @@ router.post(
   Login
 );
 
+// ------------------ GitHub OAuth ------------------
+
+// Iniciar el flujo de login con GitHub
+router.get("/github", loginWithGithub);
+
+// Callback de GitHub después de login
+router.get("/github/callback", githubCallback);
+
 // ------------------ Rutas protegidas ------------------
 
-// Obtener datos del usuario
+// Obtener datos del usuario autenticado
 router.get("/me", authMiddleware, (req, res) => {
   res.json({
     message: "Datos del usuario",
@@ -67,9 +75,13 @@ router.put(
       if (!nombre && !avatar)
         return res.status(400).json({ error: "Debe enviar al menos un campo" });
 
+      // Actualizar datos en Supabase
       const { data, error } = await supabase
         .from("users")
-        .update({ name: nombre || req.user.name, photoURL: avatar || req.user.photoURL })
+        .update({
+          name: nombre || req.user.name,
+          photoURL: avatar || req.user.photoURL,
+        })
         .eq("id_user", req.user.id_user)
         .select()
         .single();

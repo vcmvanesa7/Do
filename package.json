@@ -19,8 +19,13 @@
   "homepage": "https://github.com/vcmvanesa7/Do#readme",
   "dependencies": {
     "@supabase/supabase-js": "^2.56.0",
+    "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
-    "dotenv": "^17.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
     "express-validator": "^7.2.1"
+  },
+  "devDependencies": {
+    "vite": "^7.1.4"
   }
 }

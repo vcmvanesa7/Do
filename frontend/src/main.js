@@ -1,6 +1,5 @@
 // src/main.js
-import { Navbar } from "./components/navbar.js";
-import { navigate, renderRoute } from "./router.js";
+import { navigate } from "./router.js";
 
 function setupNavigation() {
   // Captura clicks en <a data-link>
@@ -9,15 +8,12 @@ function setupNavigation() {
       e.preventDefault();
       const path = e.target.getAttribute("href");
       navigate(path);
-      renderRoute(path);
     }
   });
 }
 
 // Inicializar app
 document.addEventListener("DOMContentLoaded", () => {
-  // Montar navbar al inicio del body
-  document.body.prepend(Navbar());
 
   // Crear contenedor para las vistas
   const root = document.getElementById("app");
@@ -26,12 +22,4 @@ document.addEventListener("DOMContentLoaded", () => {
   root.appendChild(container);
 
   setupNavigation();
-
-  // Render inicial según la URL
-  renderRoute(window.location.pathname);
-});
-
-// Manejar atrás/adelante del navegador
-window.addEventListener("popstate", () => {
-  renderRoute(window.location.pathname);
 });
