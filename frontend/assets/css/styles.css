@@ -1200,10 +1200,24 @@ section h1 {
     position: relative;
     width: 100%;
     height: auto;
-    flex-direction: row;
+    flex-flow: row wrap;
     justify-content: space-between;
     padding: 0.5rem 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar .sidebar-logo {
+    display: none;
+  }
+
+  .sidebar .sidebar-links {
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar .sidebar-export {
+    margin: 1rem auto 0 ;
   }
 
   .view-container {

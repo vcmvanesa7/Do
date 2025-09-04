@@ -90,7 +90,7 @@ export const getQuizById = async (req, res) => {
     const { data, error } = await supabase
       .from("quiz")
       .select("id, name, type, id_theory, questions(*)")
-      .eq("id", id)
+      .eq("id", id_quiz)
       .limit(100, { foreignTable: 'questions' })
       .single();
 

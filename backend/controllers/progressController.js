@@ -173,7 +173,7 @@ export const checkLevelCompletion = async (req, res) => {
 
     // ✅ CORRECCIÓN: Mapear con los campos correctos
     const theoryIds = (theories || []).map(t => t.id_theory);
-    const quizIds = (quizzes || []).map(q => q.id_quiz); // ❌ Era q.id, ahora es q.id_quiz
+    const quizIds = (quizzes || []).map(q => q.id);
     const exerciseIds = (exercises || []).map(e => e.id_exercise);
 
     console.log('📊 Contenido del nivel:', {
