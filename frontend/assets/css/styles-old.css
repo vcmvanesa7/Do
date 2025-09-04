@@ -53,19 +53,19 @@ body {
   width: 100%;
 }
 
-.quiz-view ul li>* {
+.quiz-view ul li > * {
   width: 100%;
 }
 
 /* //// LEVEL CARD //// */
-.level-card {
+.level-card{
   box-shadow: 0 5px 10px 5px rgba(0, 0, 0, .05);
   margin-bottom: 2rem;
   padding: .75rem;
   border-radius: 1rem;
 }
 
-.level-card .btn {
+.level-card .btn  {
   margin-top: 1rem;
 }
 
@@ -202,6 +202,18 @@ p {
 .curso-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.progress-bar {
+  background: #eee;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.progress {
+  height: 10px;
+  background: linear-gradient(90deg, #4fd1ff, #7b5bff);
 }
 
 /* ==== Sidebar ==== */
@@ -343,6 +355,16 @@ p {
   border: 2px solid #4fd1ff;
   object-fit: cover;
   box-shadow: 0 2px 8px rgba(79, 209, 255, 0.25);
+}
+
+/* ==== Contenedor general ==== */
+section.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  line-height: 1.6;
 }
 
 /* ==== Encabezados ==== */
@@ -918,436 +940,26 @@ section h1 {
   }
 }
 
-/* ==== Paso actual (carrusel-like) ==== */
-.step-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 1.5rem;
-  margin-top: 1.5rem;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  animation: slideIn 0.4s ease;
+.circular {
+  --size: 96px;           /* tamaño del componente */
+  --stroke: 10;           /* grosor del trazo */
+  --r: 36;                /* radio del círculo (coincide con el SVG) */
+  --circ: 226.19467106;   /* 2πr con r=36 */
+  --value: 72;            /* porcentaje (0–100) por defecto */
+}
+.circular .progress {
+  stroke-dasharray: var(--circ);
+  stroke-dashoffset: calc(var(--circ) - (var(--circ) * var(--value)) / 100);
+  transition: stroke-dashoffset 0.6s ease, stroke 0.3s ease;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+/* Spinner indeterminado */
+@keyframes spin-stroke {
+  0%   { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
+  50%  { stroke-dasharray: 100, 200; stroke-dashoffset: -15; }
+  100% { stroke-dasharray: 100, 200; stroke-dashoffset: -125; }
 }
-
-/* ==== Barra de progreso dinámica ==== */
-.progress-bar {
-  background: #eee;
-  border-radius: 8px;
-  overflow: hidden;
-  height: 14px;
-  margin: 0.5rem 0 1rem 0;
+.spinner .progress {
+  stroke-dasharray: 80, 200;
+  animation: spin-stroke 1.5s ease-in-out infinite;
 }
-
-.progress {
-  height: 14px;
-  background: linear-gradient(90deg, #4fd1ff, #7b5bff);
-  transition: width 0.3s ease;
-}
-
-
-/* ===================== */
-/* 🔹 Estilos para feedback del Quiz */
-/* ===================== */
-.success {
-  color: #16a34a;
-  /* verde intenso */
-  background: #dcfce7;
-  /* verde pastel */
-  border: 1px solid #16a34a;
-  padding: 10px 14px;
-  margin-top: 12px;
-  border-radius: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  animation: fadeIn 0.4s ease-in;
-}
-
-.success::before {
-  content: "✔️";
-  font-size: 18px;
-}
-
-.retry {
-  color: #b45309;
-  /* naranja oscuro */
-  background: #fef3c7;
-  /* amarillo suave */
-  border: 1px solid #facc15;
-  padding: 10px 14px;
-  margin-top: 12px;
-  border-radius: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  animation: fadeIn 0.4s ease-in;
-}
-
-.retry::before {
-  content: "⚠️";
-  font-size: 18px;
-}
-
-.error {
-  color: #dc2626;
-  /* rojo fuerte */
-  background: #fee2e2;
-  /* rojo claro */
-  border: 1px solid #dc2626;
-  padding: 10px 14px;
-  margin-top: 12px;
-  border-radius: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  animation: fadeIn 0.4s ease-in;
-}
-
-.error::before {
-  content: "❌";
-  font-size: 18px;
-}
-
-/* ===================== */
-/* 🔹 Barra de progreso elegante */
-/* ===================== */
-.progress-bar {
-  width: 100%;
-  height: 16px;
-  border-radius: 9999px;
-  background: #e5e7eb;
-  /* gris suave */
-  overflow: hidden;
-  margin: 1rem 0;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.progress {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #3b82f6, #9333ea);
-  /* azul → púrpura */
-  border-radius: 9999px;
-  transition: width 0.4s ease, background 0.6s ease;
-}
-
-/* ===================== */
-/* 🔹 Tarjeta de step (teoría, quiz, ejercicio) */
-/* ===================== */
-.step-card {
-  background: #ffffff;
-  border-radius: 18px;
-  padding: 1.5rem;
-  margin-top: 1.5rem;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  animation: slideIn 0.4s ease;
-}
-
-.step-card h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.step-card p {
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
-  color: #374151;
-  /* gris oscuro */
-}
-
-/* ===================== */
-/* 🔹 Botones pro */
-/* ===================== */
-.btn {
-  background: linear-gradient(90deg, #2563eb, #7c3aed);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 10px 18px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
-}
-
-.btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.4);
-}
-
-/* ===================== */
-/* 🔹 Animaciones */
-/* ===================== */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.reward-bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-
-  background: linear-gradient(90deg, #fff, #fdf6ff);
-  border: 1px solid #f0e0f8;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-
-  padding: 0.6rem 1.5rem;
-  margin-bottom: 1.5rem;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.reward-bar .stat {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.reward-bar .stat span {
-  font-size: 1.2rem;
-}
-
-/* ===================== */
-/* 📱 Responsive global */
-/* ===================== */
-
-/* Tablets (<= 900px) */
-@media (max-width: 900px) {
-
-  /* Sidebar se reduce */
-  .sidebar {
-    width: 180px;
-    padding: 0.8rem;
-  }
-
-  .view-container {
-    margin-left: 180px;
-    padding: 1.5rem;
-  }
-
-  /* Grid de cursos pasa a 2 columnas */
-  .courses-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  /* Hero y features */
-  .public-hero h1 {
-    font-size: 2.4rem;
-  }
-
-  .public-features {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.2rem;
-  }
-}
-
-/* Móviles (<= 600px) */
-@media (max-width: 600px) {
-
-  /* Sidebar colapsa arriba */
-  #app {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 0.5rem 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .view-container {
-    margin-left: 0;
-    padding: 1rem;
-  }
-
-  /* Section compacta */
-  section {
-    padding: 1rem;
-  }
-
-  h1 {
-    font-size: 1.6rem;
-  }
-
-  h2 {
-    font-size: 1.2rem;
-  }
-
-  h3 {
-    font-size: 1rem;
-  }
-
-  /* Cursos en columna */
-  .courses-grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* Tarjeta curso */
-  .curso-card {
-    padding: 1rem;
-  }
-
-  /* Reward bar en columna */
-  .reward-bar {
-    flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
-  }
-
-  /* Perfil avatar */
-  .profile-header {
-    flex-direction: column;
-  }
-
-  .avatar-preview {
-    width: 90px;
-    height: 90px;
-  }
-
-  /* Hero y features */
-  .public-hero {
-    padding: 2rem 1rem;
-  }
-
-  .public-hero h1 {
-    font-size: 2rem;
-  }
-
-  .public-hero p {
-    font-size: 1rem;
-  }
-
-  .public-features {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  /* Quiz */
-  .quiz-view {
-    padding: 1rem;
-  }
-
-  /* Inputs y botones más chicos */
-  input {
-    font-size: 0.9rem;
-    padding: 8px;
-  }
-
-  .btn {
-    font-size: 0.9rem;
-    padding: 10px 16px;
-  }
-}
-
-/* Extra pequeños (<= 400px) */
-@media (max-width: 400px) {
-  .reward-bar {
-    font-size: 0.85rem;
-    gap: 0.3rem;
-  }
-
-  .btn {
-    width: 100%;
-    text-align: center;
-  }
-
-  input {
-    font-size: 0.85rem;
-  }
-}
-
-@keyframes dash {
-  0% {
-    stroke-dasharray: 1, 200;
-    stroke-dashoffset: 0;
-  }
-  50% {
-    stroke-dasharray: 100, 200;
-    stroke-dashoffset: -15px;
-  }
-  100% {
-    stroke-dasharray: 1, 200;
-    stroke-dashoffset: -125px;
-  }
-}
-@keyframes circular-rotate {
-  100% { transform: rotate(360deg); }
-}
-@keyframes circular-dash {
-  0% {
-    stroke-dasharray: 1, 200;
-    stroke-dashoffset: 0;
-  }
-  50% {
-    stroke-dasharray: 90, 200;
-    stroke-dashoffset: -35px;
-  }
-  100% {
-    stroke-dasharray: 1, 200;
-    stroke-dashoffset: -125px;
-  }
-}
-
-.circular-rotate {
-  animation: circular-rotate 1.4s linear infinite;
-  transform-origin: center;
-}
-
-.circular-dash {
-  animation: circular-dash 1.4s ease-in-out infinite;
-  stroke-linecap: round;
-}
-
-/* Opcional: suavizar el borde exterior */
-.circular-svg { display: block; }

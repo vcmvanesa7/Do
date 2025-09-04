@@ -71,13 +71,19 @@ export async function QuizView(params) {
   }
 
   async function renderResult(quiz) {
-    container.innerHTML = `
-      <section>
-        <h2>Resultados</h2>
-        <p>Completaste el quiz <strong>${quiz.name}</strong>.</p>
-        <p>Tu puntuación: <strong>${score} / ${quiz.questions.length}</strong></p>
-        <button id="volver-level">Volver al nivel</button>
-      </section>
+    container.innerHTML = ` 
+      <div class="w-full flex justify-center">
+        <div class="w-12 h-12">
+          <svg class="circular-rotate circular-svg" viewBox="22 22 44 44" width="48" height="48" role="img" aria-label="Cargando">
+            <!-- fondo (opcional) -->
+            <circle cx="44" cy="44" r="20" fill="none" stroke="currentColor" stroke-opacity="0.08" stroke-width="4"></circle>
+
+            <!-- arco animado -->
+            <circle class="circular-dash" cx="44" cy="44" r="20" fill="none"
+                    stroke="currentColor" stroke-width="4" stroke-dasharray="80 200" stroke-dashoffset="0"></circle>
+          </svg>
+        </div>
+      </div>
     `;
 
     const goBackBtn = container.querySelector("#volver-level");
@@ -99,14 +105,16 @@ export async function QuizView(params) {
 
       const result = await response.json();
 
+      const percent = (score / quiz.questions.length) * 100;
+
       container.innerHTML = `
         <section>
           <h2>¡Quiz Completado!</h2>
           <p>Quiz: <strong>${quiz.name}</strong></p>
           <div class="results-summary">
-            <p>Respuestas correctas: <strong>${result.correct} / ${result.total}</strong></p>
-            <p>Puntuación: <strong>${result.percent}%</strong></p>
-            ${result.percent >= 70
+            <p>Respuestas correctas: <strong>${score} / ${quiz.questions.length}</strong></p>
+            <p>Puntuación: <strong>${percent}%</strong></p>
+            ${percent >= 70
           ? '<p class="success">¡Excelente trabajo! 🎉</p>'
           : '<p class="retry">Puedes intentarlo de nuevo para mejorar tu puntuación.</p>'}
           </div>
