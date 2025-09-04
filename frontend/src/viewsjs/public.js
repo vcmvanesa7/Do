@@ -6,7 +6,7 @@ export function PublicView() {
 
   section.innerHTML = `
     <div class="public-hero">
-      <img src="./public/favicon.svg" alt="Dö Logo" width="96" height="96" style="margin: 0 auto;">
+      <img src="../../public/favicon.svg" alt="Dö Logo" width="96" height="96" style="margin: 0 auto;">
       <h1 class="text-4xl font-bold mb-2 text-white">Welcome to Dö</h1>
       <p class="text-lg text-gray-600 mb-6">An immersive interactive platform to learn programming from scratch.</p>
       <a data-link href="/register" class="btn">Start Learning</a>
