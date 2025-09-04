@@ -161,6 +161,16 @@ button:active {
   transform: scale(0.98);
 }
 
+.btn.delete {
+  background: #F44336;
+  box-shadow: none;
+}
+
+.btn.edit {
+  background: #3498DB;
+  box-shadow: none;
+}
+
 /* ==== Párrafos ==== */
 p {
   margin-top: 1rem;
@@ -673,6 +683,15 @@ section {
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
+}
+
+section.admin-dashboard {
+  max-width: initial;
+  width: 100%;
+  padding: 0;
+  min-height: 100%;
+  display: flex;
+  
 }
 
 /* ==== Título ==== */

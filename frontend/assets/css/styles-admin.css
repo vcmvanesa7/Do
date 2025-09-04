@@ -1,0 +1,198 @@
+/* === Estilos para los Modales === */
+/* Ocultar modales por defecto */
+.hidden {
+  display: none !important;
+}
+
+/* Fondo oscuro del modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* fondo semitransparente */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Contenido del modal */
+.modal-content {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  position: relative;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  animation: fadeIn 0.3s ease;
+}
+
+/* Botón "X" de cerrar en la esquina superior derecha */
+.modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  padding: 4px;
+  margin: 0;
+  font-size: 1.7rem; /* más pequeño */
+  line-height: 1;
+  color: #888;
+  cursor: pointer;
+  outline: none;
+}
+
+.modal-close:hover {
+  color: #ff3c7e;
+}
+
+
+.modal-close:hover {
+  color: #ff3c7e;
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.link-admin {
+  display: block;
+  padding: 0.5rem 0;
+  color: #ddd;
+  text-decoration: none;
+}
+
+.link-admin.active {
+  color: #fff;
+  font-weight: bold;
+}
+
+.logout-button {
+  background-color: #ff3c7e;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: white;
+  cursor: pointer;
+  margin-top: 2rem;
+  border-radius: 4px;
+}
+
+.logout-button:hover {
+  background-color: #e7336e;
+}
+
+/* Layout general */
+.admin-layout {
+  display: flex;
+  height: 100vh; /* ocupa toda la pantalla */
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: 220px;
+  background-color: #2c2c2c;
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  height: 100dvh;
+}
+
+/* Links del sidebar */
+.admin-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.admin-sidebar ul > div {
+  display: flex;
+  flex-flow: column nowrap;
+  flex: 1;
+  justify-content: center;
+}
+
+.admin-sidebar a{
+  padding: .5rem;
+  border-radius: .5rem;
+  flex: 1;
+  display: block;
+  width: 100%;
+}
+.admin-sidebar a:hover {
+  background: rgba(255, 255, 255, .1);
+}
+
+.admin-sidebar a.active {
+  background: rgba(255, 255, 255, .1);
+}
+
+.admin-sidebar a.active:hover {
+  background: rgba(255, 255, 255, .2);
+}
+
+
+.admin-sidebar h2 {
+  margin-bottom: 1rem;
+}
+
+.admin-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Para que el contenido principal no quede debajo del sidebar */
+.admin-content {
+  padding: 2rem;
+  flex-grow: 1;
+  background-color: #f9f9f9;
+  overflow-y: auto;
+  min-height: 100vh;
+  flex: 1;
+}
+
+.link-admin {
+  display: block;
+  padding: 0.5rem 0;
+  color: #ccc;
+  text-decoration: none;
+}
+
+.link-admin.active {
+  color: #fff;
+  font-weight: bold;
+}
+
+.logout-button {
+  background-color: #ff3c7e;
+  border: none;
+  padding: 0.5rem;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-top: 2rem;
+}
+
+.logout-button:hover {
+  background-color: #e7336e;
+}

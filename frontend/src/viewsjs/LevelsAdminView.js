@@ -17,7 +17,7 @@ export function LevelsAdminView(container) {
     </form>
 
     <!-- Lista de niveles -->
-    <ul id="level-list"></ul>
+    <div id="level-list"></div>
 
     <!-- Modal Editar -->
     <div id="edit-modal" class="modal hidden">
@@ -91,13 +91,47 @@ export function LevelsAdminView(container) {
     try {
       const response = await api.get("/levels", { auth: true });
       levels = Array.isArray(response.levels) ? response.levels : [];
-      levelList.innerHTML = levels.map(l => `
-        <li>
-          <strong>${l.name}</strong> - ${l.description || ''} (Paso: ${l.step}, Curso ID: ${l.id_courses})
-          <button data-edit='${JSON.stringify(l)}'>Editar</button>
-          <button data-id='${l.id_level}' class="btn-delete">Eliminar</button>
-        </li>
-      `).join("");
+      
+      levelList.innerHTML = `
+        <div class="!my-8 overflow-x-scroll">
+          <table class="w-full table-auto border-collapse text-sm">
+            <thead>
+              <tr>
+                <th class="!p-4 border border-gray-100 text-sm border-b border-gray-200 p-4 pt-0 pb-3 pl-8 text-left font-medium text-gray-400">Nombre</th>
+                <th class="!p-4 border border-gray-100 text-sm border-b border-gray-200 p-4 pt-0 pb-3 pl-8 text-left font-medium text-gray-400">Descripción</th>
+                <th class="!p-4 border border-gray-100 text-sm border-b border-gray-200 p-4 pt-0 pb-3 pl-8 text-left font-medium text-gray-400">Paso</th>
+                <th class="!p-4 border border-gray-100 text-sm border-b border-gray-200 p-4 pt-0 pb-3 pl-8 text-left font-medium text-gray-400">ID Curso</th>
+                <th class="!p-4 border border-gray-100 text-sm border-b border-gray-200 p-4 pt-0 pb-3 pl-8 text-left font-medium text-gray-400">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              ${levels.map(l => `
+                <tr>
+                  <td class="!p-4 min-w-30 text-left border border-gray-100 p-4 pl-8 text-gray-500">
+                    <strong>${l.name}</strong>
+                  </td>
+                  <td class="min-w-100 !p-4 text-left border border-gray-100 p-4 pl-8 text-gray-500">
+                    ${l.description || ''}
+                  </td>
+                  <td class="!p-4 min-w-30 text-left border border-gray-100 p-4 pl-8 text-gray-500">
+                    ${l.step}
+                  </td>
+                  <td class="!p-4 min-w-30 text-left border border-gray-100 p-4 pl-8 text-gray-500">
+                    ${l.id_courses}
+                  </td>
+                  <td class="border border-gray-100 p-4 pl-8 text-gray-500">
+                    <div>
+                      <button class="btn edit" data-edit='${JSON.stringify(l)}'><i class="fa-solid fa-pen-to-square"></i></button>
+                      <button data-id='${l.id_level}' class="btn delete btn-delete"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              `).join("")
+              }
+            </tbody>
+          </table>
+        </div>
+      `;
     } catch (err) {
       levelList.innerHTML = `<li>Error al cargar niveles: ${err.message}</li>`;
     }

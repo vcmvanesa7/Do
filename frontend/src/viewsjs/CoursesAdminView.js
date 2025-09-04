@@ -3,39 +3,42 @@ import { api } from "../services/api.js";
 export function CoursesAdminView(container) {
   // Genera todo el HTML inicial de la vista: formulario, lista y modales
   container.innerHTML = `
-    <h2>Gestionar Cursos</h2>
+    <div class="!p-4">
+      <h2>Gestión de Cursos</h2>
 
-    <!-- Formulario Agregar -->
-    <form id="course-form">
-      <input type="text" name="name" placeholder="Nombre del curso" required>
-      <input type="text" name="description" placeholder="Descripción">
-      <button type="submit">Agregar Curso</button>
-    </form>
+      <!-- Lista de cursos -->
+      <ul id="course-list"></ul>
 
-    <!-- Lista de cursos -->
-    <ul id="course-list"></ul>
+      <!-- Formulario Agregar -->
+      <form id="course-form">
+        <input type="text" name="name" placeholder="Nombre del curso" required>
+        <input type="text" name="description" placeholder="Descripción">
+        <button type="submit">Agregar Curso</button>
+      </form>
 
-    <!-- Modal Editar -->
-    <div id="edit-modal" class="modal hidden">
-      <div class="modal-content">
-        <h3>Editar Curso</h3>
-        <form id="edit-form">
-          <input type="hidden" name="id_courses">
-          <input type="text" name="name" placeholder="Nombre" required>
-          <input type="text" name="description" placeholder="Descripción">
-          <button type="submit">Guardar</button>
-          <button type="button" id="close-edit">Cancelar</button>
-        </form>
+
+      <!-- Modal Editar -->
+      <div id="edit-modal" class="modal hidden">
+        <div class="modal-content">
+          <h3>Editar Curso</h3>
+          <form id="edit-form">
+            <input type="hidden" name="id_courses">
+            <input type="text" name="name" placeholder="Nombre" required>
+            <input type="text" name="description" placeholder="Descripción">
+            <button type="submit">Guardar</button>
+            <button type="button" id="close-edit">Cancelar</button>
+          </form>
+        </div>
       </div>
-    </div>
 
-    <!-- Modal Eliminar -->
-    <div id="delete-modal" class="modal hidden">
-      <div class="modal-content">
-        <h3>¿Eliminar curso?</h3>
-        <p id="delete-course-name"></p>
-        <button id="confirm-delete">Eliminar</button>
-        <button id="close-delete">Cancelar</button>
+      <!-- Modal Eliminar -->
+      <div id="delete-modal" class="modal hidden">
+        <div class="modal-content">
+          <h3>¿Eliminar curso?</h3>
+          <p id="delete-course-name"></p>
+          <button id="confirm-delete">Eliminar</button>
+          <button id="close-delete">Cancelar</button>
+        </div>
       </div>
     </div>
   `;
@@ -67,13 +70,38 @@ export function CoursesAdminView(container) {
       const response = await api.get("/courses", { auth: true });
       courses = Array.isArray(response.courses) ? response.courses : [];
       // muestra la lista de cursos
-      courseList.innerHTML = courses.map(c => `
-        <li>
-          <strong>${c.name}</strong> - ${c.description || ''}
-          <button data-edit='${JSON.stringify(c)}'>Editar</button>
-          <button data-id='${c.id_courses}' class="btn-delete">Eliminar</button>
-        </li>
-      `).join("");
+
+      courseList.innerHTML = `
+        <div class="!my-8 overflow-x-scroll">
+          <table class="w-full table-auto border-collapse text-sm">
+            <thead>
+              <tr>
+                <th class="!p-4 border border-gray-100 text-sm border-b border-gray-200 p-4 pt-0 pb-3 pl-8 text-left font-medium text-gray-400">Nombre</th>
+                <th class="!p-4 border border-gray-100 text-sm border-b border-gray-200 p-4 pt-0 pb-3 pl-8 text-left font-medium text-gray-400">Descripción</th>
+                <th class="!p-4 border border-gray-100 text-sm border-b border-gray-200 p-4 pt-0 pb-3 pl-8 text-left font-medium text-gray-400">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              ${courses.map(c => `
+                <tr>
+                  <td class="!p-4 min-w-30 text-left border border-gray-100 p-4 pl-8 text-gray-500">
+                    <strong>${c.name}</strong>
+                  </td>
+                  <td class="min-w-100 !p-4 text-left border border-gray-100 p-4 pl-8 text-gray-500">
+                    ${c.description || ''}
+                  </td>
+                  <td class="border border-gray-100 p-4 pl-8 text-gray-500">
+                    <div class="!p-4 gap-2 items-center flex">
+                      <button class="btn edit" data-edit='${JSON.stringify(c)}'><i class="fa-solid fa-pen-to-square"></i></button>
+                      <button data-id='${c.id_courses}' class="btn delete btn-delete"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `
     } catch (err) {
       courseList.innerHTML = `<li>Error al cargar cursos: ${err.message}</li>`;
     }

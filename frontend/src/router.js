@@ -103,7 +103,7 @@ export async function renderRoute(path) {
 // Navegación SPA sin recargar - CORREGIDO
 export function navigate(path) {
   window.history.pushState({}, "", path); // Cambia la URL sin recargar
-  renderRoute(path); // ¡ESTO ES LO QUE FALTABA!
+  renderRoute(path);
 }
 
 // Detectar navegación hacia atrás/adelante
